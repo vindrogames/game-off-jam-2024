@@ -3,21 +3,22 @@ class Example extends Phaser.Scene
     preload ()
     {
         
-        this.load.image('tiles', 'assets/img/draw_tiles_void.png');
+        this.load.image('tiles', 'assets/img/64x64/draw_tiles_void_64.png');
         this.load.image('tiles-cheat', 'assets/img/drawtiles-spaced.png');
-        this.load.image('machango', 'assets/img/knight.png');
-        this.load.tilemapCSV('map', 'assets/grid.csv');
+        this.load.image('machango', 'assets/img/64x64/knight_64.png');
+        this.load.tilemapCSV('map', 'assets/test.csv');
     }
 
     create() {
-        var map = this.make.tilemap({ key: 'map', tileWidth: 32, tileHeight: 32 });
-        var tileset = map.addTilesetImage('tiles', null, 32, 32, 1, 2);
+        const TILEDIMENSION = 64;
+        var map = this.make.tilemap({ key: 'map', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+        var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
         var layer = map.createLayer('layer', tileset, 0, 0);
     
         var numDeaths = 0;
     
-        const starting_pointX = 32 + 16;
-        const starting_pointY = 32 + 16;
+        const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
+        const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
     
         const player = this.add.image(starting_pointX, starting_pointY, 'machango');
     
@@ -31,19 +32,19 @@ class Example extends Phaser.Scene
         }
     
         this.input.keyboard.on('keydown-A', event => {
-            movePlayer(-32, 0);
+            movePlayer(-TILEDIMENSION, 0);
         });
     
         this.input.keyboard.on('keydown-D', event => {
-            movePlayer(32, 0);
+            movePlayer(TILEDIMENSION, 0);
         });
     
         this.input.keyboard.on('keydown-W', event => {
-            movePlayer(0, -32);
+            movePlayer(0, -TILEDIMENSION);
         });
     
         this.input.keyboard.on('keydown-S', event => {
-            movePlayer(0, 32);
+            movePlayer(0, TILEDIMENSION);
         });
     
         this.input.keyboard.on('keydown-F', event => {
@@ -58,20 +59,20 @@ class Example extends Phaser.Scene
     
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
                 if (deltaX > 0) {
-                    movePlayer(32, 0); // Move right
+                    movePlayer(TILEDIMENSION, 0); // Move right
                 } else {
-                    movePlayer(-32, 0); // Move left
+                    movePlayer(-TILEDIMENSION, 0); // Move left
                 }
             } else {
                 if (deltaY > 0) {
-                    movePlayer(0, 32); // Move down
+                    movePlayer(0, TILEDIMENSION); // Move down
                 } else {
-                    movePlayer(0, -32); // Move up
+                    movePlayer(0, -TILEDIMENSION); // Move up
                 }
             }
         });
     
-        function movePlayer(deltaX, deltaY) {
+        const movePlayer = (deltaX, deltaY) => {
             const newX = player.x + deltaX;
             const newY = player.y + deltaY;
             const tile = layer.getTileAtWorldXY(newX, newY, true);
@@ -80,7 +81,15 @@ class Example extends Phaser.Scene
             } else if (tile.index === 1) {
                 // Death, go to the beginning
                 muerte(newX, newY);
-            } else {
+            } else if (tile.index === 3) {
+                // Death, go to the beginning
+                this.add.text(200, 200, 'Ganaste', {
+                    fontSize: '36px',
+                    fill: '#ffffff',
+                    backgroundColor: '#000000'
+                })
+            } 
+            else {
                 player.x = newX;
                 player.y = newY;
             }
