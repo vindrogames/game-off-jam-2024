@@ -85,6 +85,7 @@ class Example extends Phaser.Scene
             } else if (tile.index === 1) {
                 // Death, go to the beginning
                 muerte(newX, newY);
+                update_labels(numDeaths, current_level);
             } else if (tile.index === 3) {
                 // Victory, load next level                
                 map.destroy();
@@ -111,6 +112,7 @@ class Example extends Phaser.Scene
                 }
                 tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
                 layer = map.createLayer(0, tileset, 0, 0);
+                update_labels(numDeaths, current_level);
             } 
             else {
                 player.x = newX;
@@ -154,6 +156,15 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+
+function update_labels(num_deaths, num_level)
+{
+    var temp_level = num_level + 1;    
+    const level_label = document.getElementById('level_label');
+    level_label.textContent = 'Level ' + temp_level;
+    const deaths_label = document.getElementById('deaths_label');
+    deaths_label.textContent = 'Deaths: ' + num_deaths;
+}
 
 
 
