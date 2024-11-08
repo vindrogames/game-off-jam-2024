@@ -6,12 +6,14 @@ class Example extends Phaser.Scene
         this.load.image('tiles', 'assets/img/64x64/draw_tiles_void_64.png');
         this.load.image('tiles-cheat', 'assets/img/drawtiles-spaced.png');
         this.load.image('machango', 'assets/img/64x64/knight_64.png');
-        this.load.tilemapCSV('map', 'assets/level_1.csv');
+        this.load.tilemapCSV('level1', 'assets/level_1.csv');
+        this.load.tilemapCSV('level2', 'assets/level_2.csv');
+        this.load.tilemapCSV('level3', 'assets/level_3.csv');
     }
 
     create() {
         const TILEDIMENSION = 64;
-        var map = this.make.tilemap({ key: 'map', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+        var map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
         var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
         var layer = map.createLayer('layer', tileset, 0, 0);
     
@@ -19,6 +21,14 @@ class Example extends Phaser.Scene
     
         const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
         const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
+
+        const starting_level2X = TILEDIMENSION*7 + TILEDIMENSION/2;
+        const starting_level2Y = TILEDIMENSION*4 + TILEDIMENSION/2;
+
+        const starting_level3X = TILEDIMENSION*4 + TILEDIMENSION/2;
+        const starting_level3Y = TILEDIMENSION*6 + TILEDIMENSION/2;
+
+        var current_level = 0;
     
         const player = this.add.image(starting_pointX, starting_pointY, 'machango');
     
@@ -45,12 +55,6 @@ class Example extends Phaser.Scene
     
         this.input.keyboard.on('keydown-S', event => {
             movePlayer(0, TILEDIMENSION);
-        });
-    
-        this.input.keyboard.on('keydown-F', event => {
-            this.layer.destroy();
-            var tilesetdos = map.addTilesetImage('tiles-cheat', null, 32, 32, 1, 2);
-            this.layer = map.createLayer('layer', tilesetdos, 0, 0);
         });
     
         this.input.on('pointerdown', pointer => {
@@ -82,30 +86,50 @@ class Example extends Phaser.Scene
                 // Death, go to the beginning
                 muerte(newX, newY);
             } else if (tile.index === 3) {
-                // Death, go to the beginning
-                this.add.text(200, 200, 'Ganaste', {
-                    fontSize: '36px',
-                    fill: '#ffffff',
-                    backgroundColor: '#000000'
-                })
+                // Victory, load next level                
+                map.destroy();
+                if (current_level === 0)
+                {
+                    map = this.make.tilemap({ key: 'level2', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+                    player.x = starting_level2X;
+                    player.y = starting_level2Y;
+                    current_level++;
+                }
+                else if (current_level === 1)                
+                {
+                    map = this.make.tilemap({ key: 'level3', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+                    player.x = starting_level3X;
+                    player.y = starting_level3Y;
+                    current_level++;
+                }
+                else
+                {
+                    current_level = 0;
+                    map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+                    player.x = starting_pointX;
+                    player.y = starting_pointY;
+                }
+                tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
+                layer = map.createLayer(0, tileset, 0, 0);
             } 
             else {
                 player.x = newX;
                 player.y = newY;
             }
+            console.log('Level: '+current_level);
         }
     
         this.add.text(8, 8, 'Move with WASD or click', {
             fontSize: '18px',
             fill: '#ffffff',
             backgroundColor: '#000000'
-        });
+        }).setDepth(1);;
     
         var text_deaths = this.add.text(400, 8, 'Deaths: 0', {
             fontSize: '18px',
             fill: '#ffffff',
             backgroundColor: '#000000'
-        });
+        }).setDepth(1);;
     }  
      
 }
