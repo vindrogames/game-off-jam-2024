@@ -6,7 +6,7 @@ class Example extends Phaser.Scene
         this.load.image('tiles', 'assets/img/64x64/draw_tiles_void_64.png');
         this.load.image('tiles-cheat', 'assets/img/drawtiles-spaced.png');
         this.load.image('machango', 'assets/img/64x64/knight_64.png');
-        this.load.tilemapCSV('map', 'assets/test.csv');
+        this.load.tilemapCSV('map', 'assets/level_1.csv');
     }
 
     create() {
@@ -106,17 +106,13 @@ class Example extends Phaser.Scene
             fill: '#ffffff',
             backgroundColor: '#000000'
         });
-    }
-
-    
+    }    
 }
-
-
 
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: 650,
+    height: 550,
     parent: 'phaser-example',
     pixelArt: true,
     backgroundColor: '#1a1a2d',
