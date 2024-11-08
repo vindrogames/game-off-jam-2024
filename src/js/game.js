@@ -106,17 +106,30 @@ class Example extends Phaser.Scene
             fill: '#ffffff',
             backgroundColor: '#000000'
         });
-    }    
+    }  
+     
 }
+
+const TILE_SIZE = 64;
+const NUM_TILES = 9;
+const GAME_WIDTH = TILE_SIZE * NUM_TILES;
+const GAME_HEIGHT = TILE_SIZE * NUM_TILES;
 
 const config = {
     type: Phaser.AUTO,
-    width: 650,
-    height: 550,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
     parent: 'phaser-example',
     pixelArt: true,
     backgroundColor: '#1a1a2d',
-    scene: Example
+    scene: Example,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    }
 };
 
 const game = new Phaser.Game(config);
+
+
+
