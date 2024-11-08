@@ -33,10 +33,7 @@ class Example extends Phaser.Scene
         const player = this.add.image(starting_pointX, starting_pointY, 'machango');
     
         function muerte(layer1, layer2) {
-            layer.putTileAtWorldXY(2, layer1, layer2);
-            player.x = starting_pointX;
-            player.y = starting_pointY;
-            player.angle = 0;
+            layer.putTileAtWorldXY(2, layer1, layer2);            
             numDeaths++;
             text_deaths.setText('Deaths: ' + numDeaths);
         }
@@ -86,6 +83,21 @@ class Example extends Phaser.Scene
                 // Death, go to the beginning
                 muerte(newX, newY);
                 update_labels(numDeaths, current_level);
+                if (current_level === 0)
+                {
+                    player.x = starting_pointX;
+                    player.y = starting_pointY;
+                }
+                else if (current_level === 1)                
+                {
+                    player.x = starting_level2X;
+                    player.y = starting_level2Y;
+                }
+                else
+                {
+                    player.x = starting_level3X;
+                    player.y = starting_level3Y;
+                }
             } else if (tile.index === 3) {
                 // Victory, load next level                
                 map.destroy();
@@ -151,7 +163,7 @@ const config = {
     scene: Example,
     scale: {
         mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        autoCenter: Phaser.Scale.CENTER_HORIZONTALLY
     }
 };
 
