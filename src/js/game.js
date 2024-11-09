@@ -11,6 +11,7 @@ class Example extends Phaser.Scene {
 
     create() {
         const TILEDIMENSION = 64;
+        var cheatmode = false;
         var map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
         var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
         var layer = map.createLayer('layer', tileset, 0, 0);
@@ -24,14 +25,20 @@ class Example extends Phaser.Scene {
         const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
         const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
 
-        const key_level1X = TILEDIMENSION*5 + TILEDIMENSION/2;
-        const key_level1Y = TILEDIMENSION*2 + TILEDIMENSION/2;
+        const key_level1X = TILEDIMENSION*4 + TILEDIMENSION/2;
+        const key_level1Y = TILEDIMENSION*1 + TILEDIMENSION/2;
 
         const starting_level2X = TILEDIMENSION*7 + TILEDIMENSION/2;
         const starting_level2Y = TILEDIMENSION*4 + TILEDIMENSION/2;
 
+        const key_level2X = TILEDIMENSION*1 + TILEDIMENSION/2;
+        const key_level2Y = TILEDIMENSION*1 + TILEDIMENSION/2;
+
         const starting_level3X = TILEDIMENSION*4 + TILEDIMENSION/2;
         const starting_level3Y = TILEDIMENSION*6 + TILEDIMENSION/2;
+
+        const key_level3X = TILEDIMENSION*5 + TILEDIMENSION/2;
+        const key_level3Y = TILEDIMENSION*5 + TILEDIMENSION/2;
 
         var current_level = 0;
     
@@ -49,6 +56,21 @@ class Example extends Phaser.Scene {
 
         const resetLevel = () => {
             hasDiamond = false;
+            if (current_level === 0)
+            {
+                diamond.setX(key_level1X);
+                diamond.setY(key_level1Y);
+            }
+            else if (current_level === 1)
+            {
+                diamond.setX(key_level2X);
+                diamond.setY(key_level2Y);
+            }
+            else if (current_level === 2)
+            {
+                diamond.setX(key_level3X);
+                diamond.setY(key_level3Y);
+            }            
             diamond.setVisible(true);
         }
 
@@ -118,6 +140,17 @@ class Example extends Phaser.Scene {
         this.input.keyboard.on('keydown-S', event => {
             if (!isMoving && !isDying) movePlayer(0, TILEDIMENSION, lastDirection);
         });
+
+        this.input.keyboard.on('keydown-O', event => {
+            if (cheatmode)
+            {
+                cheatmode = false;
+            }
+            else
+            {
+                cheatmode = true;
+            }
+        });
     
         this.input.on('pointerdown', pointer => {
             if (isMoving || isDying) return;
@@ -165,7 +198,7 @@ class Example extends Phaser.Scene {
 
             if (tile.index === 2) {
                 return;
-            } else if (tile.index === 1) {
+            } else if ((tile.index === 1) && (!cheatmode)) {
                 handleDeath(newX, newY);
             } else if (tile.index === 3) {
                 map.destroy();
