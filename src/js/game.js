@@ -17,8 +17,9 @@ class Example extends Phaser.Scene {
     
         var numDeaths = 0;
         var isMoving = false;
-        var lastDirection = 'right'; // Track last horizontal direction
-        var hasDiamond = false; // Track if player has collected the diamond
+        var lastDirection = 'right';
+        var hasDiamond = false;
+        var isDying = false;
     
         const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
         const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
@@ -46,30 +47,80 @@ class Example extends Phaser.Scene {
             text_deaths.setText('Deaths: ' + numDeaths);
         }
 
-        // Function to reset level state
         const resetLevel = () => {
             hasDiamond = false;
             diamond.setVisible(true);
         }
+
+        const respawnPlayer = (targetX, targetY) => {
+            player.x = targetX;
+            player.y = targetY;
+            player.flipX = false;
+            lastDirection = 'right';
+            isDying = false;
+            player.play({ key: 'Idle fight', repeat: -1 });
+            //resetLevel();
+        }
+
+        const handleDeath = (newX, newY) => {
+            if (isDying) return;
+            
+            isDying = true;
+            muerte(newX, newY);
+            update_labels(numDeaths, current_level);
+            
+            // Calculate respawn position
+            let targetX, targetY;
+            if (current_level === 0) {
+                targetX = starting_pointX;
+                targetY = starting_pointY;
+            } else if (current_level === 1) {
+                targetX = starting_level2X;
+                targetY = starting_level2Y;
+            } else {
+                targetX = starting_level3X;
+                targetY = starting_level3Y;
+            }
+
+            // Play death animation
+            player.play({
+                key: 'morte',
+                repeat: 0,
+                frameRate: 10,
+                onComplete: () => {
+                    // Use a small delay to ensure animation completes
+                    this.time.delayedCall(100, () => {
+                        respawnPlayer(targetX, targetY);
+                    });
+                }
+            });
+
+            // Failsafe: ensure player respawns even if animation fails
+            this.time.delayedCall(1000, () => {
+                if (isDying) {
+                    respawnPlayer(targetX, targetY);
+                }
+            });
+        };
     
         this.input.keyboard.on('keydown-A', event => {
-            if (!isMoving) movePlayer(-TILEDIMENSION, 0, 'left');
+            if (!isMoving && !isDying) movePlayer(-TILEDIMENSION, 0, 'left');
         });
     
         this.input.keyboard.on('keydown-D', event => {
-            if (!isMoving) movePlayer(TILEDIMENSION, 0, 'right');
+            if (!isMoving && !isDying) movePlayer(TILEDIMENSION, 0, 'right');
         });
     
         this.input.keyboard.on('keydown-W', event => {
-            if (!isMoving) movePlayer(0, -TILEDIMENSION, lastDirection);
+            if (!isMoving && !isDying) movePlayer(0, -TILEDIMENSION, lastDirection);
         });
     
         this.input.keyboard.on('keydown-S', event => {
-            if (!isMoving) movePlayer(0, TILEDIMENSION, lastDirection);
+            if (!isMoving && !isDying) movePlayer(0, TILEDIMENSION, lastDirection);
         });
     
         this.input.on('pointerdown', pointer => {
-            if (isMoving) return;
+            if (isMoving || isDying) return;
             
             const deltaX = pointer.worldX - player.x;
             const deltaY = pointer.worldY - player.y;
@@ -94,7 +145,6 @@ class Example extends Phaser.Scene {
             const newY = player.y + deltaY;
             const tile = layer.getTileAtWorldXY(newX, newY, true);
 
-            // Update sprite direction
             if (direction === 'left') {
                 player.flipX = true;
                 lastDirection = 'left';
@@ -103,11 +153,9 @@ class Example extends Phaser.Scene {
                 lastDirection = 'right';
             }
 
-            // Check if player is collecting the diamond
             if (!hasDiamond && newX === diamond.x && newY === diamond.y) {
                 hasDiamond = true;
                 diamond.setVisible(false);
-                // Change exit tiles from index 4 to 3 when diamond is collected
                 map.forEachTile(tile => {
                     if (tile.index === 4) {
                         tile.index = 3;
@@ -116,34 +164,10 @@ class Example extends Phaser.Scene {
             }
 
             if (tile.index === 2) {
-                // Blocked, we can't move
                 return;
             } else if (tile.index === 1) {
-                // Death animations and position reset
-                muerte(newX, newY);
-                update_labels(numDeaths, current_level);
-                
-                let targetX, targetY;
-                if (current_level === 0) {
-                    targetX = starting_pointX;
-                    targetY = starting_pointY;
-                } else if (current_level === 1) {
-                    targetX = starting_level2X;
-                    targetY = starting_level2Y;
-                } else {
-                    targetX = starting_level3X;
-                    targetY = starting_level3Y;
-                }
-
-                player.x = targetX;
-                player.y = targetY;
-                player.flipX = false;
-                lastDirection = 'right';
-                player.play({ key: 'Idle fight', repeat: -1 });
-                //resetLevel(); // Reset diamond state on death
-
+                handleDeath(newX, newY);
             } else if (tile.index === 3) {
-                // Victory and level change
                 map.destroy();
                 let targetX, targetY;
                 
@@ -173,14 +197,12 @@ class Example extends Phaser.Scene {
                 tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
                 layer = map.createLayer(0, tileset, 0, 0);
                 update_labels(numDeaths, current_level);
-                resetLevel(); // Reset diamond state on level change
+                resetLevel();
             } 
             else if (tile.index === 4) {
-                // Exit is locked (need diamond)
                 return;
             } 
             else {
-                // Normal movement with animation
                 isMoving = true;
                 player.play({ key: 'run front', repeat: -1 });
                 
