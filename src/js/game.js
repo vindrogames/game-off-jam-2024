@@ -1,14 +1,12 @@
-class Example extends Phaser.Scene
-{
-    preload ()
-    {
-        
-        this.load.image('tiles', 'assets/img/64x64/draw_tiles_void_64.png');
-        this.load.image('tiles-cheat', 'assets/img/drawtiles-spaced.png');
+class Example extends Phaser.Scene {
+    preload() {
+        this.load.image('tiles', 'assets/img/64x64/draw_tiles_void_64.png');        
         this.load.image('machango', 'assets/img/64x64/knight_64.png');
         this.load.tilemapCSV('level1', 'assets/level_1.csv');
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
+        this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
+        this.load.atlas('gems', 'assets/img/animation/gems.png', 'assets/img/animation/gems.json');
     }
 
     create() {
@@ -18,9 +16,16 @@ class Example extends Phaser.Scene
         var layer = map.createLayer('layer', tileset, 0, 0);
     
         var numDeaths = 0;
+        var isMoving = false;
+        var lastDirection = 'right';
+        var hasDiamond = false;
+        var isDying = false;
     
         const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
         const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
+
+        const key_level1X = TILEDIMENSION*5 + TILEDIMENSION/2;
+        const key_level1Y = TILEDIMENSION*2 + TILEDIMENSION/2;
 
         const starting_level2X = TILEDIMENSION*7 + TILEDIMENSION/2;
         const starting_level2Y = TILEDIMENSION*4 + TILEDIMENSION/2;
@@ -30,122 +35,203 @@ class Example extends Phaser.Scene
 
         var current_level = 0;
     
-        const player = this.add.image(starting_pointX, starting_pointY, 'machango');
+        const tags = this.anims.createFromAseprite('paladin');
+        const player = this.add.sprite(starting_pointX, starting_pointY).play({ key: 'Idle fight', repeat: -1 }).setScale(1);
+
+        this.anims.create({ key: 'diamond', frames: this.anims.generateFrameNames('gems', { prefix: 'diamond_', end: 15, zeroPad: 4 }), repeat: -1 });
+        var diamond = this.add.sprite(key_level1X, key_level1Y, 'gems').play('diamond');
     
         function muerte(layer1, layer2) {
             layer.putTileAtWorldXY(2, layer1, layer2);            
             numDeaths++;
             text_deaths.setText('Deaths: ' + numDeaths);
         }
+
+        const resetLevel = () => {
+            hasDiamond = false;
+            diamond.setVisible(true);
+        }
+
+        const respawnPlayer = (targetX, targetY) => {
+            player.x = targetX;
+            player.y = targetY;
+            player.flipX = false;
+            lastDirection = 'right';
+            isDying = false;
+            player.play({ key: 'Idle fight', repeat: -1 });
+            //resetLevel();
+        }
+
+        const handleDeath = (newX, newY) => {
+            if (isDying) return;
+            
+            isDying = true;
+            muerte(newX, newY);
+            update_labels(numDeaths, current_level);
+            
+            // Calculate respawn position
+            let targetX, targetY;
+            if (current_level === 0) {
+                targetX = starting_pointX;
+                targetY = starting_pointY;
+            } else if (current_level === 1) {
+                targetX = starting_level2X;
+                targetY = starting_level2Y;
+            } else {
+                targetX = starting_level3X;
+                targetY = starting_level3Y;
+            }
+
+            // Play death animation
+            player.play({
+                key: 'morte',
+                repeat: 0,
+                frameRate: 10,
+                onComplete: () => {
+                    // Use a small delay to ensure animation completes
+                    this.time.delayedCall(100, () => {
+                        respawnPlayer(targetX, targetY);
+                    });
+                }
+            });
+
+            // Failsafe: ensure player respawns even if animation fails
+            this.time.delayedCall(1000, () => {
+                if (isDying) {
+                    respawnPlayer(targetX, targetY);
+                }
+            });
+        };
     
         this.input.keyboard.on('keydown-A', event => {
-            movePlayer(-TILEDIMENSION, 0);
+            if (!isMoving && !isDying) movePlayer(-TILEDIMENSION, 0, 'left');
         });
     
         this.input.keyboard.on('keydown-D', event => {
-            movePlayer(TILEDIMENSION, 0);
+            if (!isMoving && !isDying) movePlayer(TILEDIMENSION, 0, 'right');
         });
     
         this.input.keyboard.on('keydown-W', event => {
-            movePlayer(0, -TILEDIMENSION);
+            if (!isMoving && !isDying) movePlayer(0, -TILEDIMENSION, lastDirection);
         });
     
         this.input.keyboard.on('keydown-S', event => {
-            movePlayer(0, TILEDIMENSION);
+            if (!isMoving && !isDying) movePlayer(0, TILEDIMENSION, lastDirection);
         });
     
         this.input.on('pointerdown', pointer => {
+            if (isMoving || isDying) return;
+            
             const deltaX = pointer.worldX - player.x;
             const deltaY = pointer.worldY - player.y;
     
             if (Math.abs(deltaX) > Math.abs(deltaY)) {
                 if (deltaX > 0) {
-                    movePlayer(TILEDIMENSION, 0); // Move right
+                    movePlayer(TILEDIMENSION, 0, 'right');
                 } else {
-                    movePlayer(-TILEDIMENSION, 0); // Move left
+                    movePlayer(-TILEDIMENSION, 0, 'left');
                 }
             } else {
                 if (deltaY > 0) {
-                    movePlayer(0, TILEDIMENSION); // Move down
+                    movePlayer(0, TILEDIMENSION, lastDirection);
                 } else {
-                    movePlayer(0, -TILEDIMENSION); // Move up
+                    movePlayer(0, -TILEDIMENSION, lastDirection);
                 }
             }
         });
     
-        const movePlayer = (deltaX, deltaY) => {
+        const movePlayer = (deltaX, deltaY, direction) => {
             const newX = player.x + deltaX;
             const newY = player.y + deltaY;
             const tile = layer.getTileAtWorldXY(newX, newY, true);
+
+            if (direction === 'left') {
+                player.flipX = true;
+                lastDirection = 'left';
+            } else if (direction === 'right') {
+                player.flipX = false;
+                lastDirection = 'right';
+            }
+
+            if (!hasDiamond && newX === diamond.x && newY === diamond.y) {
+                hasDiamond = true;
+                diamond.setVisible(false);
+                map.forEachTile(tile => {
+                    if (tile.index === 4) {
+                        tile.index = 3;
+                    }
+                });
+            }
+
             if (tile.index === 2) {
-                // Blocked, we can't move
+                return;
             } else if (tile.index === 1) {
-                // Death, go to the beginning
-                muerte(newX, newY);
-                update_labels(numDeaths, current_level);
-                if (current_level === 0)
-                {
-                    player.x = starting_pointX;
-                    player.y = starting_pointY;
-                }
-                else if (current_level === 1)                
-                {
-                    player.x = starting_level2X;
-                    player.y = starting_level2Y;
-                }
-                else
-                {
-                    player.x = starting_level3X;
-                    player.y = starting_level3Y;
-                }
+                handleDeath(newX, newY);
             } else if (tile.index === 3) {
-                // Victory, load next level                
                 map.destroy();
-                if (current_level === 0)
-                {
+                let targetX, targetY;
+                
+                if (current_level === 0) {
                     map = this.make.tilemap({ key: 'level2', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
-                    player.x = starting_level2X;
-                    player.y = starting_level2Y;
+                    targetX = starting_level2X;
+                    targetY = starting_level2Y;
                     current_level++;
-                }
-                else if (current_level === 1)                
-                {
+                } else if (current_level === 1) {
                     map = this.make.tilemap({ key: 'level3', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
-                    player.x = starting_level3X;
-                    player.y = starting_level3Y;
+                    targetX = starting_level3X;
+                    targetY = starting_level3Y;
                     current_level++;
-                }
-                else
-                {
+                } else {
                     current_level = 0;
                     map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
-                    player.x = starting_pointX;
-                    player.y = starting_pointY;
+                    targetX = starting_pointX;
+                    targetY = starting_pointY;
                 }
+
+                player.x = targetX;
+                player.y = targetY;
+                player.flipX = false;
+                lastDirection = 'right';
+                player.play({ key: 'Idle fight', repeat: -1 });
+
                 tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
                 layer = map.createLayer(0, tileset, 0, 0);
                 update_labels(numDeaths, current_level);
+                resetLevel();
+            } 
+            else if (tile.index === 4) {
+                return;
             } 
             else {
-                player.x = newX;
-                player.y = newY;
+                isMoving = true;
+                player.play({ key: 'run front', repeat: -1 });
+                
+                this.tweens.add({
+                    targets: player,
+                    x: newX,
+                    y: newY,
+                    duration: 200,
+                    ease: 'Power2',
+                    onComplete: () => {
+                        isMoving = false;
+                        player.play({ key: 'Idle fight', repeat: -1 });
+                    }
+                });
             }
-            console.log('Level: '+current_level);
         }
     
         this.add.text(8, 8, 'Move with WASD or click', {
             fontSize: '18px',
             fill: '#ffffff',
             backgroundColor: '#000000'
-        }).setDepth(1);;
+        }).setDepth(1);
     
         var text_deaths = this.add.text(400, 8, 'Deaths: 0', {
             fontSize: '18px',
             fill: '#ffffff',
             backgroundColor: '#000000'
-        }).setDepth(1);;
+        }).setDepth(1);
     }  
-     
 }
 
 const TILE_SIZE = 64;
@@ -169,14 +255,10 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-function update_labels(num_deaths, num_level)
-{
+function update_labels(num_deaths, num_level) {
     var temp_level = num_level + 1;    
     const level_label = document.getElementById('level_label');
     level_label.textContent = 'Level ' + temp_level;
     const deaths_label = document.getElementById('deaths_label');
     deaths_label.textContent = 'Deaths: ' + num_deaths;
 }
-
-
-
