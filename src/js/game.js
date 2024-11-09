@@ -6,6 +6,7 @@ class Example extends Phaser.Scene {
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
         this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
+        this.load.atlas('gems', 'assets/img/animation/gems.png', 'assets/img/animation/gems.json');
     }
 
     create() {
@@ -17,9 +18,13 @@ class Example extends Phaser.Scene {
         var numDeaths = 0;
         var isMoving = false;
         var lastDirection = 'right'; // Track last horizontal direction
+        var hasDiamond = false; // Track if player has collected the diamond
     
         const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
         const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
+
+        const key_level1X = TILEDIMENSION*5 + TILEDIMENSION/2;
+        const key_level1Y = TILEDIMENSION*2 + TILEDIMENSION/2;
 
         const starting_level2X = TILEDIMENSION*7 + TILEDIMENSION/2;
         const starting_level2Y = TILEDIMENSION*4 + TILEDIMENSION/2;
@@ -31,11 +36,20 @@ class Example extends Phaser.Scene {
     
         const tags = this.anims.createFromAseprite('paladin');
         const player = this.add.sprite(starting_pointX, starting_pointY).play({ key: 'Idle fight', repeat: -1 }).setScale(1);
+
+        this.anims.create({ key: 'diamond', frames: this.anims.generateFrameNames('gems', { prefix: 'diamond_', end: 15, zeroPad: 4 }), repeat: -1 });
+        var diamond = this.add.sprite(key_level1X, key_level1Y, 'gems').play('diamond');
     
         function muerte(layer1, layer2) {
             layer.putTileAtWorldXY(2, layer1, layer2);            
             numDeaths++;
             text_deaths.setText('Deaths: ' + numDeaths);
+        }
+
+        // Function to reset level state
+        const resetLevel = () => {
+            hasDiamond = false;
+            diamond.setVisible(true);
         }
     
         this.input.keyboard.on('keydown-A', event => {
@@ -88,7 +102,18 @@ class Example extends Phaser.Scene {
                 player.flipX = false;
                 lastDirection = 'right';
             }
-            // Vertical movement keeps the last horizontal direction
+
+            // Check if player is collecting the diamond
+            if (!hasDiamond && newX === diamond.x && newY === diamond.y) {
+                hasDiamond = true;
+                diamond.setVisible(false);
+                // Change exit tiles from index 4 to 3 when diamond is collected
+                map.forEachTile(tile => {
+                    if (tile.index === 4) {
+                        tile.index = 3;
+                    }
+                });
+            }
 
             if (tile.index === 2) {
                 // Blocked, we can't move
@@ -112,9 +137,10 @@ class Example extends Phaser.Scene {
 
                 player.x = targetX;
                 player.y = targetY;
-                player.flipX = false; // Reset to default direction
+                player.flipX = false;
                 lastDirection = 'right';
                 player.play({ key: 'Idle fight', repeat: -1 });
+                //resetLevel(); // Reset diamond state on death
 
             } else if (tile.index === 3) {
                 // Victory and level change
@@ -140,13 +166,18 @@ class Example extends Phaser.Scene {
 
                 player.x = targetX;
                 player.y = targetY;
-                player.flipX = false; // Reset to default direction
+                player.flipX = false;
                 lastDirection = 'right';
                 player.play({ key: 'Idle fight', repeat: -1 });
 
                 tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
                 layer = map.createLayer(0, tileset, 0, 0);
                 update_labels(numDeaths, current_level);
+                resetLevel(); // Reset diamond state on level change
+            } 
+            else if (tile.index === 4) {
+                // Exit is locked (need diamond)
+                return;
             } 
             else {
                 // Normal movement with animation
@@ -165,7 +196,6 @@ class Example extends Phaser.Scene {
                     }
                 });
             }
-            console.log('Level: '+current_level);
         }
     
         this.add.text(8, 8, 'Move with WASD or click', {
@@ -203,8 +233,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-function update_labels(num_deaths, num_level)
-{
+function update_labels(num_deaths, num_level) {
     var temp_level = num_level + 1;    
     const level_label = document.getElementById('level_label');
     level_label.textContent = 'Level ' + temp_level;
