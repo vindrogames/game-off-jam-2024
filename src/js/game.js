@@ -47,6 +47,10 @@ class Example extends Phaser.Scene {
 
         this.anims.create({ key: 'diamond', frames: this.anims.generateFrameNames('gems', { prefix: 'diamond_', end: 15, zeroPad: 4 }), repeat: -1 });
         var diamond = this.add.sprite(key_level1X, key_level1Y, 'gems').play('diamond');
+
+        player.setDepth(1);
+        diamond.setDepth(1);
+        layer.setDepth(0);
     
         function muerte(layer1, layer2) {
             layer.putTileAtWorldXY(2, layer1, layer2);            
@@ -200,6 +204,37 @@ class Example extends Phaser.Scene {
                 return;
             } else if (tile.index === 4) {
                 return;
+            } else if (tile.index === 3) {
+                map.destroy();
+                let targetX, targetY;
+                
+                if (current_level === 0) {
+                    map = this.make.tilemap({ key: 'level2', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+                    targetX = starting_level2X;
+                    targetY = starting_level2Y;
+                    current_level++;
+                } else if (current_level === 1) {
+                    map = this.make.tilemap({ key: 'level3', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+                    targetX = starting_level3X;
+                    targetY = starting_level3Y;
+                    current_level++;
+                } else {
+                    current_level = 0;
+                    map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+                    targetX = starting_pointX;
+                    targetY = starting_pointY;
+                }
+        
+                player.x = targetX;
+                player.y = targetY;
+                player.flipX = false;
+                lastDirection = 'right';
+                player.play({ key: 'Idle fight', repeat: -1 });
+        
+                tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
+                layer = map.createLayer(0, tileset, 0, 0);
+                update_labels(numDeaths, current_level);
+                resetLevel();
             } else {
                 isMoving = true;
                 player.play({ key: 'run front', repeat: -1 });
