@@ -103,7 +103,7 @@ class Example extends Phaser.Scene {
                 targetX = starting_level3X;
                 targetY = starting_level3Y;
             }
-
+        
             // Play death animation
             player.play({
                 key: 'morte',
@@ -116,14 +116,14 @@ class Example extends Phaser.Scene {
                     });
                 }
             });
-
+        
             // Failsafe: ensure player respawns even if animation fails
             this.time.delayedCall(1000, () => {
                 if (isDying) {
                     respawnPlayer(targetX, targetY);
                 }
             });
-        };
+        }
     
         this.input.keyboard.on('keydown-A', event => {
             if (!isMoving && !isDying) movePlayer(-TILEDIMENSION, 0, 'left');
@@ -177,7 +177,7 @@ class Example extends Phaser.Scene {
             const newX = player.x + deltaX;
             const newY = player.y + deltaY;
             const tile = layer.getTileAtWorldXY(newX, newY, true);
-
+        
             if (direction === 'left') {
                 player.flipX = true;
                 lastDirection = 'left';
@@ -185,7 +185,7 @@ class Example extends Phaser.Scene {
                 player.flipX = false;
                 lastDirection = 'right';
             }
-
+        
             if (!hasDiamond && newX === diamond.x && newY === diamond.y) {
                 hasDiamond = true;
                 diamond.setVisible(false);
@@ -195,47 +195,12 @@ class Example extends Phaser.Scene {
                     }
                 });
             }
-
+        
             if (tile.index === 2) {
                 return;
-            } else if ((tile.index === 1) && (!cheatmode)) {
-                handleDeath(newX, newY);
-            } else if (tile.index === 3) {
-                map.destroy();
-                let targetX, targetY;
-                
-                if (current_level === 0) {
-                    map = this.make.tilemap({ key: 'level2', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
-                    targetX = starting_level2X;
-                    targetY = starting_level2Y;
-                    current_level++;
-                } else if (current_level === 1) {
-                    map = this.make.tilemap({ key: 'level3', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
-                    targetX = starting_level3X;
-                    targetY = starting_level3Y;
-                    current_level++;
-                } else {
-                    current_level = 0;
-                    map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
-                    targetX = starting_pointX;
-                    targetY = starting_pointY;
-                }
-
-                player.x = targetX;
-                player.y = targetY;
-                player.flipX = false;
-                lastDirection = 'right';
-                player.play({ key: 'Idle fight', repeat: -1 });
-
-                tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
-                layer = map.createLayer(0, tileset, 0, 0);
-                update_labels(numDeaths, current_level);
-                resetLevel();
-            } 
-            else if (tile.index === 4) {
+            } else if (tile.index === 4) {
                 return;
-            } 
-            else {
+            } else {
                 isMoving = true;
                 player.play({ key: 'run front', repeat: -1 });
                 
@@ -247,7 +212,11 @@ class Example extends Phaser.Scene {
                     ease: 'Power2',
                     onComplete: () => {
                         isMoving = false;
-                        player.play({ key: 'Idle fight', repeat: -1 });
+                        if (tile.index === 1 && !cheatmode) {
+                            handleDeath(newX, newY);
+                        } else {
+                            player.play({ key: 'Idle fight', repeat: -1 });
+                        }
                     }
                 });
             }
