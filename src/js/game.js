@@ -2,7 +2,9 @@ class Example extends Phaser.Scene {
     preload() {
         this.load.image('tiles', 'assets/img/64x64/draw_tiles_void_64.png');        
         this.load.image('machango', 'assets/img/64x64/knight_64.png');
-        this.load.tilemapCSV('level1', 'assets/level_1.csv');
+        this.load.image('maik', 'assets/img/64x64/tile_set_map.png');
+        //this.load.tilemapCSV('level1', 'assets/level_1.csv');
+        this.load.tilemapCSV('level1', 'assets/mike_level.csv');
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
         this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
@@ -13,7 +15,7 @@ class Example extends Phaser.Scene {
         const TILEDIMENSION = 64;
         var cheatmode = false;
         var map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
-        var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
+        var tileset = map.addTilesetImage('maik', null, TILEDIMENSION, TILEDIMENSION, 0, 0);
         var layer = map.createLayer('layer', tileset, 0, 0);
     
         var numDeaths = 0;
