@@ -3,12 +3,12 @@ class Example extends Phaser.Scene {
         this.load.image('tiles', 'assets/img/64x64/draw_tiles_void_64.png');        
         this.load.image('machango', 'assets/img/64x64/knight_64.png');
         this.load.image('maik', 'assets/img/64x64/tile_set_map.png');
-        //this.load.tilemapCSV('level1', 'assets/level_1.csv');
         this.load.tilemapCSV('level1', 'assets/mike_level.csv');
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
         this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
         this.load.atlas('gems', 'assets/img/animation/gems.png', 'assets/img/animation/gems.json');
+        this.load.atlas('door', 'assets/img/animation/door.png', 'assets/img/animation/door.json');
     }
 
     create() {
@@ -23,6 +23,7 @@ class Example extends Phaser.Scene {
         var lastDirection = 'right';
         var hasDiamond = false;
         var isDying = false;
+        var doorSprite = null;
     
         const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
         const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
@@ -50,6 +51,14 @@ class Example extends Phaser.Scene {
         this.anims.create({ key: 'diamond', frames: this.anims.generateFrameNames('gems', { prefix: 'diamond_', end: 15, zeroPad: 4 }), repeat: -1 });
         var diamond = this.add.sprite(key_level1X, key_level1Y, 'gems').play('diamond');
 
+        // Modified door animation to play once and slower
+        this.anims.create({ 
+            key: 'door', 
+            frames: this.anims.generateFrameNames('door'), 
+            repeat: 0,  // 0 means play once
+            frameRate: 8  // Lower number = slower animation (default is usually 24)
+        });
+
         player.setDepth(1);
         diamond.setDepth(1);
         layer.setDepth(0);
@@ -60,20 +69,26 @@ class Example extends Phaser.Scene {
             text_deaths.setText('Deaths: ' + numDeaths);
         }
 
+        const createDoorAtTile = (tile) => {
+            const doorX = tile.pixelX + TILEDIMENSION/2;
+            const doorY = tile.pixelY + TILEDIMENSION/2;
+            doorSprite = this.add.sprite(doorX, doorY, 'door').play('door');
+            doorSprite.setDepth(1);
+        }
+
         const resetLevel = () => {
             hasDiamond = false;
-            if (current_level === 0)
-            {
+            if (doorSprite) {
+                doorSprite.destroy();
+                doorSprite = null;
+            }
+            if (current_level === 0) {
                 diamond.setX(key_level1X);
                 diamond.setY(key_level1Y);
-            }
-            else if (current_level === 1)
-            {
+            } else if (current_level === 1) {
                 diamond.setX(key_level2X);
                 diamond.setY(key_level2Y);
-            }
-            else if (current_level === 2)
-            {
+            } else if (current_level === 2) {
                 diamond.setX(key_level3X);
                 diamond.setY(key_level3Y);
             }            
@@ -87,7 +102,6 @@ class Example extends Phaser.Scene {
             lastDirection = 'right';
             isDying = false;
             player.play({ key: 'Idle fight', repeat: -1 });
-            //resetLevel();
         }
 
         const handleDeath = (newX, newY) => {
@@ -97,7 +111,6 @@ class Example extends Phaser.Scene {
             muerte(newX, newY);
             update_labels(numDeaths, current_level);
             
-            // Calculate respawn position
             let targetX, targetY;
             if (current_level === 0) {
                 targetX = starting_pointX;
@@ -110,20 +123,17 @@ class Example extends Phaser.Scene {
                 targetY = starting_level3Y;
             }
         
-            // Play death animation
             player.play({
                 key: 'morte',
                 repeat: 0,
                 frameRate: 10,
                 onComplete: () => {
-                    // Use a small delay to ensure animation completes
                     this.time.delayedCall(100, () => {
                         respawnPlayer(targetX, targetY);
                     });
                 }
             });
         
-            // Failsafe: ensure player respawns even if animation fails
             this.time.delayedCall(1000, () => {
                 if (isDying) {
                     respawnPlayer(targetX, targetY);
@@ -148,14 +158,7 @@ class Example extends Phaser.Scene {
         });
 
         this.input.keyboard.on('keydown-O', event => {
-            if (cheatmode)
-            {
-                cheatmode = false;
-            }
-            else
-            {
-                cheatmode = true;
-            }
+            cheatmode = !cheatmode;
         });
     
         this.input.on('pointerdown', pointer => {
@@ -196,7 +199,8 @@ class Example extends Phaser.Scene {
                 hasDiamond = true;
                 diamond.setVisible(false);
                 map.forEachTile(tile => {
-                    if (tile.index === 4) {
+                    if (tile.index === 10) {
+                        createDoorAtTile(tile);
                         tile.index = 3;
                     }
                 });
