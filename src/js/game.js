@@ -1,38 +1,38 @@
 class Example extends Phaser.Scene {
     preload() {
-        this.load.image('tiles', 'assets/img/64x64/draw_tiles_void_64.png');        
+        this.load.image('tiles', 'assets/img/64x64/map_tileset_64.png');        
         this.load.image('machango', 'assets/img/64x64/knight_64.png');
         this.load.tilemapCSV('level1', 'assets/level_1.csv');
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
         this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
-        this.load.atlas('gems', 'assets/img/animation/gems.png', 'assets/img/animation/gems.json');
+        this.load.atlas('keyTile', 'assets/img/animation/key_tile_animation_imgset.png', 'assets/img/animation/key_animation.json');
     }
 
     create() {
         const TILEDIMENSION = 64;
         var cheatmode = false;
         var map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
-        var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
+        var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);
         var layer = map.createLayer('layer', tileset, 0, 0);
     
         var numDeaths = 0;
         var isMoving = false;
         var lastDirection = 'right';
-        var hasDiamond = false;
+        var hasKey = false;
         var isDying = false;
     
         const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
         const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
 
-        const key_level1X = TILEDIMENSION*4 + TILEDIMENSION/2;
-        const key_level1Y = TILEDIMENSION*1 + TILEDIMENSION/2;
+        const key_level1X = TILEDIMENSION*5 + TILEDIMENSION/2;
+        const key_level1Y = TILEDIMENSION*5 + TILEDIMENSION/2;
 
         const starting_level2X = TILEDIMENSION*7 + TILEDIMENSION/2;
         const starting_level2Y = TILEDIMENSION*4 + TILEDIMENSION/2;
 
-        const key_level2X = TILEDIMENSION*1 + TILEDIMENSION/2;
-        const key_level2Y = TILEDIMENSION*1 + TILEDIMENSION/2;
+        const key_level2X = TILEDIMENSION*2 + TILEDIMENSION/2;
+        const key_level2Y = TILEDIMENSION*7 + TILEDIMENSION/2;
 
         const starting_level3X = TILEDIMENSION*4 + TILEDIMENSION/2;
         const starting_level3Y = TILEDIMENSION*6 + TILEDIMENSION/2;
@@ -45,11 +45,11 @@ class Example extends Phaser.Scene {
         const tags = this.anims.createFromAseprite('paladin');
         const player = this.add.sprite(starting_pointX, starting_pointY).play({ key: 'Idle fight', repeat: -1 }).setScale(1);
 
-        this.anims.create({ key: 'diamond', frames: this.anims.generateFrameNames('gems', { prefix: 'diamond_', end: 15, zeroPad: 4 }), repeat: -1 });
-        var diamond = this.add.sprite(key_level1X, key_level1Y, 'gems').play('diamond');
+        this.anims.create({ key: 'keyTile', frames: this.anims.generateFrameNames('keyTile', { prefix: 'keyTile_', end: 11, zeroPad: 4 }), repeat: -1 });
+        var keyTile = this.add.sprite(key_level1X, key_level1Y, 'gems').play('keyTile');
 
         player.setDepth(1);
-        diamond.setDepth(1);
+        keyTile.setDepth(1);
         layer.setDepth(0);
     
         function muerte(layer1, layer2) {
@@ -59,23 +59,23 @@ class Example extends Phaser.Scene {
         }
 
         const resetLevel = () => {
-            hasDiamond = false;
+            hasKey = false;
             if (current_level === 0)
             {
-                diamond.setX(key_level1X);
-                diamond.setY(key_level1Y);
+                keyTile.setX(key_level1X);
+                keyTile.setY(key_level1Y);
             }
             else if (current_level === 1)
             {
-                diamond.setX(key_level2X);
-                diamond.setY(key_level2Y);
+                keyTile.setX(key_level2X);
+                keyTile.setY(key_level2Y);
             }
             else if (current_level === 2)
             {
-                diamond.setX(key_level3X);
-                diamond.setY(key_level3Y);
+                keyTile.setX(key_level3X);
+                keyTile.setY(key_level3Y);
             }            
-            diamond.setVisible(true);
+            keyTile.setVisible(true);
         }
 
         const respawnPlayer = (targetX, targetY) => {
@@ -190,9 +190,9 @@ class Example extends Phaser.Scene {
                 lastDirection = 'right';
             }
         
-            if (!hasDiamond && newX === diamond.x && newY === diamond.y) {
-                hasDiamond = true;
-                diamond.setVisible(false);
+            if (!hasKey && newX === keyTile.x && newY === keyTile.y) {
+                hasKey = true;
+                keyTile.setVisible(false);
                 map.forEachTile(tile => {
                     if (tile.index === 4) {
                         tile.index = 3;
