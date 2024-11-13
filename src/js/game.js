@@ -1,9 +1,28 @@
+const TILE_SIZE = 64;
+const NUM_TILES = 9;
+const GAME_WIDTH = TILE_SIZE * NUM_TILES;
+const GAME_HEIGHT = TILE_SIZE * NUM_TILES;
+
+const TILEDIMENSION = 64;
+
+// Level tiles definition
+
+// Hidden Door
+const TILE_HIDDEN_DOOR = 16;
+const TILE_OPEN_DOOR_LEFT = 0;
+const TILE_HIDDEN_DOOR_UP = 17;
+const TILE_OPEN_DOOR_UP = 14;
+const TILE_NORMAL_FLOOR = 2;
+const TILE_DEATH = 3;
+const TILE_WALL_UP = 6;
+const TILE_WALL_DOWN = 11;
+const TILE_WALL_LEFT = 9;
+const TILE_WALL_RIGHT = 13;
+
 class Example extends Phaser.Scene {
     preload() {
-        this.load.image('tiles', 'assets/img/64x64/map_tileset_64.png');        
-        this.load.image('machango', 'assets/img/64x64/knight_64.png');
-        this.load.image('maik', 'assets/img/64x64/tile_set_map.png');
-        this.load.tilemapCSV('level1', 'assets/mike_level.csv');
+        this.load.image('tiles', 'assets/img/64x64/map_tileset_64.png');
+        this.load.tilemapCSV('level1', 'assets/level_1.csv');
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
         this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
@@ -13,11 +32,10 @@ class Example extends Phaser.Scene {
     }
 
     create() {
-        const TILEDIMENSION = 64;
+        
         var cheatmode = false;
-        var map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
-        var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);
-        var tileset = map.addTilesetImage('maik', null, TILEDIMENSION, TILEDIMENSION, 0, 0);
+        var map = this.make.tilemap({ key: 'level2', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+        var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);       
         var layer = map.createLayer('layer', tileset, 0, 0);
     
         var numDeaths = 0;
@@ -87,6 +105,10 @@ class Example extends Phaser.Scene {
             }
             else if (current_level === 1)
             {
+                if (doorSprite) {
+                    doorSprite.destroy();
+                    doorSprite = null;
+                }
                 keyTile.setX(key_level2X);
                 keyTile.setY(key_level2Y);
             }
@@ -95,11 +117,12 @@ class Example extends Phaser.Scene {
                 keyTile.setX(key_level3X);
                 keyTile.setY(key_level3Y);
             
-            if (doorSprite) {
-                doorSprite.destroy();
-                doorSprite = null;
-            }                   
-            keyTile.setVisible(true);
+                if (doorSprite) {
+                    doorSprite.destroy();
+                    doorSprite = null;
+                }                   
+                keyTile.setVisible(true);
+            }
         }
 
         const respawnPlayer = (targetX, targetY) => {
@@ -206,21 +229,20 @@ class Example extends Phaser.Scene {
                 hasKey = true;
                 keyTile.setVisible(false);
                 map.forEachTile(tile => {
-                    if (tile.index === 10) {
+                    if (tile.index === TILE_HIDDEN_DOOR) {
                         createDoorAtTile(tile);
-                        tile.index = 3;
+                        tile.index = TILE_OPEN_DOOR_LEFT;
                     }
                 });
             }
         
-            if (tile.index === 2) {
+            if ([TILE_WALL_DOWN, TILE_WALL_LEFT, TILE_WALL_RIGHT, TILE_WALL_UP, TILE_HIDDEN_DOOR, TILE_HIDDEN_DOOR_UP].includes(tile.index)) 
+            {
                 return;
-            } else if (tile.index === 4) {
-                return;
-            } else if (tile.index === 3) {
+            }
+             else if (tile.index === TILE_OPEN_DOOR_LEFT ) {
                 map.destroy();
-                let targetX, targetY;
-                
+                let targetX, targetY;                
                 if (current_level === 0) {
                     map = this.make.tilemap({ key: 'level2', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
                     targetX = starting_level2X;
@@ -244,7 +266,7 @@ class Example extends Phaser.Scene {
                 lastDirection = 'right';
                 player.play({ key: 'Idle fight', repeat: -1 });
         
-                tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 1, 2);
+                tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);
                 layer = map.createLayer(0, tileset, 0, 0);
                 update_labels(numDeaths, current_level);
                 resetLevel();
@@ -260,7 +282,7 @@ class Example extends Phaser.Scene {
                     ease: 'Power2',
                     onComplete: () => {
                         isMoving = false;
-                        if (tile.index === 1 && !cheatmode) {
+                        if (tile.index === TILE_DEATH && !cheatmode) {
                             handleDeath(newX, newY);
                         } else {
                             player.play({ key: 'Idle fight', repeat: -1 });
@@ -284,10 +306,7 @@ class Example extends Phaser.Scene {
     }  
 }
 
-const TILE_SIZE = 64;
-const NUM_TILES = 9;
-const GAME_WIDTH = TILE_SIZE * NUM_TILES;
-const GAME_HEIGHT = TILE_SIZE * NUM_TILES;
+
 
 const config = {
     type: Phaser.AUTO,
