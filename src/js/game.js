@@ -26,8 +26,7 @@ class Example extends Phaser.Scene {
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
         this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
-        this.load.atlas('keyTile', 'assets/img/animation/key_tile_animation_imgset.png', 'assets/img/animation/key_animation.json');
-        this.load.atlas('gems', 'assets/img/animation/gems.png', 'assets/img/animation/gems.json');
+        this.load.atlas('keyTile', 'assets/img/animation/key_tile_animation_imgset.png', 'assets/img/animation/key_animation.json');        
         this.load.atlas('door', 'assets/img/animation/door.png', 'assets/img/animation/door.json');
         this.load.atlas('doorUp', 'assets/img/animation/door_top_animation_imgset.png', 'assets/img/animation/door_top_animation_imgset.json');
     }
@@ -70,8 +69,15 @@ class Example extends Phaser.Scene {
         const tags = this.anims.createFromAseprite('paladin');
         const player = this.add.sprite(starting_pointX, starting_pointY).play({ key: 'Idle fight', repeat: -1 }).setScale(1);
 
-        this.anims.create({ key: 'keyTile', frames: this.anims.generateFrameNames('keyTile', { prefix: 'keyTile_', end: 11, zeroPad: 4 }), repeat: -1 });
-        var keyTile = this.add.sprite(key_level1X, key_level1Y, 'gems').play('keyTile');
+        this.anims.create({ 
+            key: 'keyTile', 
+            frames: this.anims.generateFrameNames('keyTile', { prefix: 'keyTile_', end: 11, zeroPad: 4 }), 
+            repeat: -1,
+            frameRate: 8
+        });
+        var keyTile = this.add.sprite(key_level1X, key_level1Y, 'keyTile');
+        var keyTileAnim = keyTile.play('keyTile');
+        
 
         // Modified door animation to play once and slower
         this.anims.create({ 
