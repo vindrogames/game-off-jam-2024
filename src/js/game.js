@@ -29,12 +29,13 @@ class Example extends Phaser.Scene {
         this.load.atlas('keyTile', 'assets/img/animation/key_tile_animation_imgset.png', 'assets/img/animation/key_animation.json');
         this.load.atlas('gems', 'assets/img/animation/gems.png', 'assets/img/animation/gems.json');
         this.load.atlas('door', 'assets/img/animation/door.png', 'assets/img/animation/door.json');
+        this.load.atlas('doorUp', 'assets/img/animation/door_top_animation_imgset.png', 'assets/img/animation/door_top_animation_imgset.json');
     }
 
     create() {
         
         var cheatmode = false;
-        var map = this.make.tilemap({ key: 'level2', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
+        var map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
         var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);       
         var layer = map.createLayer('layer', tileset, 0, 0);
     
@@ -44,6 +45,7 @@ class Example extends Phaser.Scene {
         var hasKey = false;
         var isDying = false;
         var doorSprite = null;
+        var doorSpriteUp = null;
     
         const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
         const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
@@ -61,7 +63,7 @@ class Example extends Phaser.Scene {
         const starting_level3Y = TILEDIMENSION*6 + TILEDIMENSION/2;
 
         const key_level3X = TILEDIMENSION*5 + TILEDIMENSION/2;
-        const key_level3Y = TILEDIMENSION*5 + TILEDIMENSION/2;
+        const key_level3Y = TILEDIMENSION*2 + TILEDIMENSION/2;
 
         var current_level = 0;
     
@@ -75,6 +77,13 @@ class Example extends Phaser.Scene {
         this.anims.create({ 
             key: 'door', 
             frames: this.anims.generateFrameNames('door'), 
+            repeat: 0,  // 0 means play once
+            frameRate: 8  // Lower number = slower animation (default is usually 24)
+        });
+
+        this.anims.create({ 
+            key: 'doorUp', 
+            frames: this.anims.generateFrameNames('doorUp'), 
             repeat: 0,  // 0 means play once
             frameRate: 8  // Lower number = slower animation (default is usually 24)
         });
@@ -96,12 +105,20 @@ class Example extends Phaser.Scene {
             doorSprite.setDepth(1);
         }
 
+        const createDoorUpAtTile = (tile) => {
+            const doorX = tile.pixelX + TILEDIMENSION/2;
+            const doorY = tile.pixelY + TILEDIMENSION/2;
+            doorSpriteUp = this.add.sprite(doorX, doorY, 'doorUp').play('doorUp');
+            doorSpriteUp.setDepth(1);
+        }
+
         const resetLevel = () => {
             hasKey = false;
             if (current_level === 0)
             {
                 keyTile.setX(key_level1X);
                 keyTile.setY(key_level1Y);
+                keyTile.setVisible(true);
             }
             else if (current_level === 1)
             {
@@ -111,15 +128,16 @@ class Example extends Phaser.Scene {
                 }
                 keyTile.setX(key_level2X);
                 keyTile.setY(key_level2Y);
+                keyTile.setVisible(true);
             }
             else if (current_level === 2)
             {
                 keyTile.setX(key_level3X);
                 keyTile.setY(key_level3Y);
             
-                if (doorSprite) {
-                    doorSprite.destroy();
-                    doorSprite = null;
+                if (doorSpriteUp) {
+                    doorSpriteUp.destroy();
+                    doorSpriteUp = null;
                 }                   
                 keyTile.setVisible(true);
             }
@@ -233,6 +251,10 @@ class Example extends Phaser.Scene {
                         createDoorAtTile(tile);
                         tile.index = TILE_OPEN_DOOR_LEFT;
                     }
+                    if (tile.index === TILE_HIDDEN_DOOR_UP) {
+                        createDoorUpAtTile(tile);
+                        tile.index = TILE_OPEN_DOOR_UP;
+                    }
                 });
             }
         
@@ -240,7 +262,7 @@ class Example extends Phaser.Scene {
             {
                 return;
             }
-             else if (tile.index === TILE_OPEN_DOOR_LEFT ) {
+             else if (tile.index === TILE_OPEN_DOOR_LEFT || tile.index === TILE_OPEN_DOOR_UP) {
                 map.destroy();
                 let targetX, targetY;                
                 if (current_level === 0) {
