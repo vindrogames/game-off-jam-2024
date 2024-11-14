@@ -22,6 +22,7 @@ const TILE_WALL_RIGHT = 13;
 class Example extends Phaser.Scene {
     preload() {
         this.load.image('tiles', 'assets/img/64x64/map_tileset_64.png');
+        this.load.image('machango', 'assets/img/64x64/mach_center.png');
         this.load.tilemapCSV('level1', 'assets/level_1.csv');
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
@@ -69,11 +70,14 @@ class Example extends Phaser.Scene {
         const tags = this.anims.createFromAseprite('paladin');
         const player = this.add.sprite(starting_pointX, starting_pointY).play({ key: 'Idle fight', repeat: -1 }).setScale(1);
 
+        const machango = this.add.image(starting_level2X, starting_level2Y, 'machango');
+        
+
         this.anims.create({ 
             key: 'keyTile', 
             frames: this.anims.generateFrameNames('keyTile', { prefix: 'keyTile_', end: 11, zeroPad: 4 }), 
             repeat: -1,
-            frameRate: 8
+            frameRate: 8,
         });
         var keyTile = this.add.sprite(key_level1X, key_level1Y, 'keyTile');
         var keyTileAnim = keyTile.play('keyTile');
@@ -157,6 +161,7 @@ class Example extends Phaser.Scene {
             isDying = false;
             player.play({ key: 'Idle fight', repeat: -1 });
         }
+        
 
         const handleDeath = (newX, newY) => {
             if (isDying) return;
@@ -164,6 +169,7 @@ class Example extends Phaser.Scene {
             isDying = true;
             muerte(newX, newY);
             update_labels(numDeaths, current_level);
+            this.showChatBubble('Oh no, I died!', player.x, player.y);
             
             let targetX, targetY;
             if (current_level === 0) {
@@ -193,7 +199,7 @@ class Example extends Phaser.Scene {
                     respawnPlayer(targetX, targetY);
                 }
             });
-        }
+        };
     
         this.input.keyboard.on('keydown-A', event => {
             if (!isMoving && !isDying) movePlayer(-TILEDIMENSION, 0, 'left');
@@ -332,6 +338,61 @@ class Example extends Phaser.Scene {
             backgroundColor: '#000000'
         }).setDepth(1);
     }  
+
+    showChatBubble(text, playerX, playerY) {
+        // Create the bubble background
+        let bubbleWidth = 200;
+        let bubbleHeight = 80;
+        let bubblePadding = 10;
+        let arrowHeight = bubbleHeight / 4;
+
+        // Position the bubble above the player
+        let bubbleX = playerX - bubbleWidth / 2;
+        let bubbleY = playerY - bubbleHeight - arrowHeight - 10; // 10 pixels above the player
+
+        let bubble = this.add.graphics({ x: bubbleX, y: bubbleY });
+
+        // Bubble background
+        bubble.fillStyle(0xf2f113, 1);
+        bubble.fillRoundedRect(0, 0, bubbleWidth, bubbleHeight, 16);
+        bubble.lineStyle(4, 0x565656, 1);
+        bubble.strokeRoundedRect(0, 0, bubbleWidth, bubbleHeight, 16);
+
+        // Bubble arrow
+        bubble.fillTriangle(
+            bubbleWidth / 2 - arrowHeight, bubbleHeight,
+            bubbleWidth / 2 + arrowHeight, bubbleHeight,
+            bubbleWidth / 2, bubbleHeight + arrowHeight
+        );
+        bubble.lineStyle(4, 0x565656, 1);
+        bubble.strokeTriangle(
+            bubbleWidth / 2 - arrowHeight, bubbleHeight,
+            bubbleWidth / 2 + arrowHeight, bubbleHeight,
+            bubbleWidth / 2, bubbleHeight + arrowHeight
+        );
+
+        // Add text to the bubble
+        let bubbleText = this.add.text(0, 0, text, {
+            fontFamily: 'Arial',
+            fontSize: 18,
+            color: '#000000',
+            align: 'center',
+            wordWrap: { width: bubbleWidth - bubblePadding * 2 }
+        });
+
+        // Center the text in the bubble
+        let b = bubbleText.getBounds();
+        bubbleText.setPosition(
+            bubble.x + bubbleWidth / 2 - b.width / 2,
+            bubble.y + bubbleHeight / 2 - b.height / 2
+        );
+
+        // Destroy the bubble and text after 3 seconds
+        this.time.delayedCall(1000, () => {
+            bubble.destroy();
+            bubbleText.destroy();
+        });
+    }
 }
 
 
