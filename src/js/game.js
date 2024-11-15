@@ -26,7 +26,7 @@ class Example extends Phaser.Scene {
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
         this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
-        this.load.atlas('keyTile', 'assets/img/animation/key_tile_animation_imgset.png', 'assets/img/animation/key_animation.json');        
+        this.load.atlas('keyTile', 'assets/img/animation/key_tile_animation_imgset_square.png', 'assets/img/animation/key_animation_square.json');        
         this.load.atlas('door', 'assets/img/animation/door.png', 'assets/img/animation/door.json');
         this.load.atlas('doorUp', 'assets/img/animation/door_top_animation_imgset.png', 'assets/img/animation/door_top_animation_imgset.json');
     }
@@ -71,7 +71,7 @@ class Example extends Phaser.Scene {
 
         this.anims.create({ 
             key: 'keyTile', 
-            frames: this.anims.generateFrameNames('keyTile', { prefix: 'keyTile_', end: 11, zeroPad: 4 }), 
+            frames: this.anims.generateFrameNames('keyTile', { prefix: 'keyTile_', end: 35, zeroPad: 4 }), 
             repeat: -1,
             frameRate: 8
         });
