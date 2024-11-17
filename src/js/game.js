@@ -18,6 +18,7 @@ const TILE_WALL_UP = 6;
 const TILE_WALL_DOWN = 11;
 const TILE_WALL_LEFT = 9;
 const TILE_WALL_RIGHT = 13;
+const TUPAC_SHOW = 19;
 
 class Example extends Phaser.Scene {
     preload() {
@@ -29,6 +30,7 @@ class Example extends Phaser.Scene {
         this.load.atlas('keyTile', 'assets/img/animation/key_tile_animation_imgset_square.png', 'assets/img/animation/key_animation_square.json');        
         this.load.atlas('door', 'assets/img/animation/door.png', 'assets/img/animation/door.json');
         this.load.atlas('doorUp', 'assets/img/animation/door_top_animation_imgset.png', 'assets/img/animation/door_top_animation_imgset.json');
+        this.load.atlas('tupac_caged', 'assets/img/animation/tupac_caged_animation.png', 'tupac_caged_animation.json');
     }
 
     create() {
@@ -64,6 +66,9 @@ class Example extends Phaser.Scene {
         const key_level3X = TILEDIMENSION*5 + TILEDIMENSION/2;
         const key_level3Y = TILEDIMENSION*2 + TILEDIMENSION/2;
 
+        const tupac_caged3x = TILEDIMENSION*4 + TILEDIMENSION/2;
+        const tupac_caged3y = TILEDIMENSION*1 + TILEDIMENSION/2;
+
         var current_level = 0;
     
         const tags = this.anims.createFromAseprite('paladin');
@@ -71,7 +76,7 @@ class Example extends Phaser.Scene {
 
         this.anims.create({ 
             key: 'keyTile', 
-            frames: this.anims.generateFrameNames('keyTile', { prefix: 'keyTile_', end: 35, zeroPad: 4 }), 
+            frames: this.anims.generateFrameNames('keyTile', { prefix: 'keyTile_', end: 23, zeroPad: 4 }), 
             repeat: -1,
             frameRate: 8
         });
