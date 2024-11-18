@@ -5,11 +5,15 @@ const GAME_HEIGHT = TILE_SIZE * NUM_TILES;
 
 const TILEDIMENSION = 64;
 
+var cheatmode = false;
+
 // Level tiles definition
 
 // Hidden Door
 const TILE_HIDDEN_DOOR = 16;
 const TILE_OPEN_DOOR_LEFT = 0;
+const TILE_OPEN_DOOR_LEFT_BLOCKED = 21;
+const TILE_OPEN_DOOR_BOTTOM_BLOCKED = 22;
 const TILE_HIDDEN_DOOR_UP = 17;
 const TILE_OPEN_DOOR_UP = 14;
 const TILE_NORMAL_FLOOR = 2;
@@ -18,6 +22,7 @@ const TILE_WALL_UP = 6;
 const TILE_WALL_DOWN = 11;
 const TILE_WALL_LEFT = 9;
 const TILE_WALL_RIGHT = 13;
+const TILE_WALL_FIXED = 20;
 const TUPAC_SHOW = 19;
 
 class Example extends Phaser.Scene {
@@ -32,11 +37,12 @@ class Example extends Phaser.Scene {
         this.load.atlas('doorUp', 'assets/img/animation/door_top.png', 'assets/img/animation/door_top.json');
         this.load.atlas('tupac_caged', 'assets/img/animation/tupac_caged.png', 'assets/img/animation/tupac_caged.json');
         this.load.atlas('tupac_reveal', 'assets/img/animation/tupac_reveal.png', 'assets/img/animation/tupac_reveal.json');
+        this.load.atlas('wall_animation', 'assets/img/animation/wall_animation.png', 'assets/img/animation/wall_animation.json');
     }
 
     create() {
         
-        var cheatmode = false;
+        
         var map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
         var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);       
         var layer = map.createLayer('layer', tileset, 0, 0);
@@ -62,7 +68,7 @@ class Example extends Phaser.Scene {
         const key_level2Y = TILEDIMENSION*7 + TILEDIMENSION/2;
 
         const starting_level3X = TILEDIMENSION*4 + TILEDIMENSION/2;
-        const starting_level3Y = TILEDIMENSION*6 + TILEDIMENSION/2;
+        const starting_level3Y = TILEDIMENSION*7 + TILEDIMENSION/2;
 
         const key_level3X = TILEDIMENSION*5 + TILEDIMENSION/2;
         const key_level3Y = TILEDIMENSION*2 + TILEDIMENSION/2;
@@ -103,14 +109,20 @@ class Example extends Phaser.Scene {
             frameRate: 8  // Lower number = slower animation (default is usually 24)
         });
 
+        this.anims.create({ 
+            key: 'wall_animation', 
+            frames: this.anims.generateFrameNames('wall_animation'), 
+            repeat: 0,  // 0 means play once
+            frameRate: 8  // Lower number = slower animation (default is usually 24)
+        });
+
         player.setDepth(1);
         keyTile.setDepth(1);
         layer.setDepth(0);
     
         function muerte(layer1, layer2) {
-            layer.putTileAtWorldXY(2, layer1, layer2);            
-            numDeaths++;
-            text_deaths.setText('Deaths: ' + numDeaths);
+            layer.putTileAtWorldXY(TILE_WALL_FIXED, layer1, layer2);            
+            numDeaths++;            
         }
 
         const createDoorAtTile = (tile) => {
@@ -205,6 +217,13 @@ class Example extends Phaser.Scene {
             muerte(newX, newY);
             update_labels(numDeaths, current_level);
             this.showChatBubble('Oh no, I died!', player.x, player.y);
+        
+            // Find the actual death tile
+            let deathTile = layer.getTileAtWorldXY(newX, newY);
+            
+            // Play the wall animation at the death tile
+            let wallAnimation = this.add.sprite(deathTile.pixelX + TILEDIMENSION/2, deathTile.pixelY + TILEDIMENSION/2, 'wall_animation');
+            wallAnimation.play('wall_animation');
             
             let targetX, targetY;
             if (current_level === 0) {
@@ -234,6 +253,11 @@ class Example extends Phaser.Scene {
                     respawnPlayer(targetX, targetY);
                 }
             });
+        
+            // Change the specific TILE_DEATH to TILE_WALL_FIXED
+            if (deathTile && deathTile.index === TILE_DEATH) {
+                layer.putTileAt(TILE_WALL_FIXED, deathTile.x, deathTile.y);
+            }
         };
     
         this.input.keyboard.on('keydown-A', event => {
@@ -308,7 +332,7 @@ class Example extends Phaser.Scene {
                 });
             }
         
-            if ([TILE_WALL_DOWN, TILE_WALL_LEFT, TILE_WALL_RIGHT, TILE_WALL_UP, TILE_HIDDEN_DOOR, TILE_HIDDEN_DOOR_UP].includes(tile.index)) 
+            if ([TILE_OPEN_DOOR_BOTTOM_BLOCKED,TILE_OPEN_DOOR_LEFT_BLOCKED, TILE_WALL_FIXED, TILE_WALL_DOWN, TILE_WALL_LEFT, TILE_WALL_RIGHT, TILE_WALL_UP, TILE_HIDDEN_DOOR, TILE_HIDDEN_DOOR_UP].includes(tile.index)) 
             {
                 return;
             }
@@ -346,10 +370,14 @@ class Example extends Phaser.Scene {
                 resetLevel();
 
 
+            } else if (tile && tile.index === TILE_DEATH && !cheatmode) {
+                handleDeath(tile.pixelX + TILEDIMENSION/2, tile.pixelY + TILEDIMENSION/2);
+                layer.putTileAt(TILE_WALL_FIXED, tile.x, tile.y);
+                return;
             } else {
                 isMoving = true;
                 player.play({ key: 'run front', repeat: -1 });
-                
+
                 this.tweens.add({
                     targets: player,
                     x: newX,
@@ -358,27 +386,11 @@ class Example extends Phaser.Scene {
                     ease: 'Power2',
                     onComplete: () => {
                         isMoving = false;
-                        if (tile.index === TILE_DEATH && !cheatmode) {
-                            handleDeath(newX, newY);
-                        } else {
-                            player.play({ key: 'Idle fight', repeat: -1 });
-                        }
+                        player.play({ key: 'Idle fight', repeat: -1 });
                     }
                 });
             }
         }
-    
-        this.add.text(8, 8, 'Move with WASD or click', {
-            fontSize: '18px',
-            fill: '#ffffff',
-            backgroundColor: '#000000'
-        }).setDepth(1);
-    
-        var text_deaths = this.add.text(400, 8, 'Deaths: 0', {
-            fontSize: '18px',
-            fill: '#ffffff',
-            backgroundColor: '#000000'
-        }).setDepth(1);
     }  
 
     showChatBubble(text, playerX, playerY) {
