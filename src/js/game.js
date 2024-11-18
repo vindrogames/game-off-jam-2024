@@ -27,10 +27,11 @@ class Example extends Phaser.Scene {
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
         this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
-        this.load.atlas('keyTile', 'assets/img/animation/key_tile_animation_imgset_square.png', 'assets/img/animation/key_animation_square.json');        
+        this.load.atlas('keyTile', 'assets/img/animation/key_tile.png', 'assets/img/animation/key_tile.json');        
         this.load.atlas('door', 'assets/img/animation/door.png', 'assets/img/animation/door.json');
-        this.load.atlas('doorUp', 'assets/img/animation/door_top_animation_imgset.png', 'assets/img/animation/door_top_animation_imgset.json');
-        this.load.atlas('tupac_caged', 'assets/img/animation/tupac_caged_animation.png', 'tupac_caged_animation.json');
+        this.load.atlas('doorUp', 'assets/img/animation/door_top.png', 'assets/img/animation/door_top.json');
+        this.load.atlas('tupac_caged', 'assets/img/animation/tupac_caged.png', 'assets/img/animation/tupac_caged.json');
+        this.load.atlas('tupac_reveal', 'assets/img/animation/tupac_reveal.png', 'assets/img/animation/tupac_reveal.json');
     }
 
     create() {
@@ -66,8 +67,8 @@ class Example extends Phaser.Scene {
         const key_level3X = TILEDIMENSION*5 + TILEDIMENSION/2;
         const key_level3Y = TILEDIMENSION*2 + TILEDIMENSION/2;
 
-        const tupac_caged3x = TILEDIMENSION*4 + TILEDIMENSION/2;
-        const tupac_caged3y = TILEDIMENSION*1 + TILEDIMENSION/2;
+        const tupac_3x = TILEDIMENSION*4 + TILEDIMENSION/2;
+        const tupac_3y = TILEDIMENSION*0.5 + TILEDIMENSION/2;
 
         var current_level = 0;
     
@@ -80,6 +81,7 @@ class Example extends Phaser.Scene {
             repeat: -1,
             frameRate: 8
         });
+
         var keyTile = this.add.sprite(key_level1X, key_level1Y, 'keyTile');
         var keyTileAnim = keyTile.play('keyTile');
         
@@ -123,6 +125,24 @@ class Example extends Phaser.Scene {
             doorSpriteUp.setDepth(1);
         }
 
+        const revealAstro = (astro) => {
+
+            if (astro === 'tupac') {
+
+                this.anims.create({ 
+                    key: 'tupac_reveal', 
+                    frames: this.anims.generateFrameNames('tupac_reveal', { prefix: 'tupac_reveal_', end: 11, zeroPad: 4 }), 
+                    repeat: 0,
+                    frameRate: 8
+                });
+                
+                var tupac_reveal = this.add.sprite(tupac_3x, tupac_3y, 'tupac_reveal');
+                var tupac_revealAnim = tupac_reveal.play('tupac_reveal');
+
+                tupac_cagedAnim.destroy();
+            }
+        }
+
         const resetLevel = () => {
             hasKey = false;
             if (current_level === 0)
@@ -149,8 +169,20 @@ class Example extends Phaser.Scene {
                 if (doorSpriteUp) {
                     doorSpriteUp.destroy();
                     doorSpriteUp = null;
-                }                   
+                }
+
                 keyTile.setVisible(true);
+
+                this.anims.create({ 
+                    key: 'tupac_caged', 
+                    frames: this.anims.generateFrameNames('tupac_caged', { prefix: 'tupac_caged_', end: 11, zeroPad: 4 }), 
+                    repeat: -1,
+                    frameRate: 18
+                });
+                
+                var tupac_caged = this.add.sprite(tupac_3x, tupac_3y, 'tupac_caged');
+                var tupac_cagedAnim = tupac_caged.play('tupac_caged');
+
             }
         }
 
@@ -266,6 +298,9 @@ class Example extends Phaser.Scene {
                         createDoorUpAtTile(tile);
                         tile.index = TILE_OPEN_DOOR_UP;
                     }
+                    if (current_level === 2) {
+                        revealAstro("tupac");
+                    }
                 });
             }
         
@@ -285,6 +320,8 @@ class Example extends Phaser.Scene {
                     map = this.make.tilemap({ key: 'level3', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
                     targetX = starting_level3X;
                     targetY = starting_level3Y;
+
+
                     current_level++;
                 } else {
                     current_level = 0;
@@ -303,6 +340,8 @@ class Example extends Phaser.Scene {
                 layer = map.createLayer(0, tileset, 0, 0);
                 update_labels(numDeaths, current_level);
                 resetLevel();
+
+
             } else {
                 isMoving = true;
                 player.play({ key: 'run front', repeat: -1 });
