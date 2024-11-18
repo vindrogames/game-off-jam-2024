@@ -5,11 +5,15 @@ const GAME_HEIGHT = TILE_SIZE * NUM_TILES;
 
 const TILEDIMENSION = 64;
 
+var cheatmode = false;
+
 // Level tiles definition
 
 // Hidden Door
 const TILE_HIDDEN_DOOR = 16;
 const TILE_OPEN_DOOR_LEFT = 0;
+const TILE_OPEN_DOOR_LEFT_BLOCKED = 21;
+const TILE_OPEN_DOOR_BOTTOM_BLOCKED = 22;
 const TILE_HIDDEN_DOOR_UP = 17;
 const TILE_OPEN_DOOR_UP = 14;
 const TILE_NORMAL_FLOOR = 2;
@@ -38,7 +42,7 @@ class Example extends Phaser.Scene {
 
     create() {
         
-        var cheatmode = false;
+        
         var map = this.make.tilemap({ key: 'level1', tileWidth: TILEDIMENSION, tileHeight: TILEDIMENSION });
         var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);       
         var layer = map.createLayer('layer', tileset, 0, 0);
@@ -64,7 +68,7 @@ class Example extends Phaser.Scene {
         const key_level2Y = TILEDIMENSION*7 + TILEDIMENSION/2;
 
         const starting_level3X = TILEDIMENSION*4 + TILEDIMENSION/2;
-        const starting_level3Y = TILEDIMENSION*6 + TILEDIMENSION/2;
+        const starting_level3Y = TILEDIMENSION*7 + TILEDIMENSION/2;
 
         const key_level3X = TILEDIMENSION*5 + TILEDIMENSION/2;
         const key_level3Y = TILEDIMENSION*2 + TILEDIMENSION/2;
@@ -328,7 +332,7 @@ class Example extends Phaser.Scene {
                 });
             }
         
-            if ([TILE_WALL_FIXED, TILE_WALL_DOWN, TILE_WALL_LEFT, TILE_WALL_RIGHT, TILE_WALL_UP, TILE_HIDDEN_DOOR, TILE_HIDDEN_DOOR_UP].includes(tile.index)) 
+            if ([TILE_OPEN_DOOR_BOTTOM_BLOCKED,TILE_OPEN_DOOR_LEFT_BLOCKED, TILE_WALL_FIXED, TILE_WALL_DOWN, TILE_WALL_LEFT, TILE_WALL_RIGHT, TILE_WALL_UP, TILE_HIDDEN_DOOR, TILE_HIDDEN_DOOR_UP].includes(tile.index)) 
             {
                 return;
             }
