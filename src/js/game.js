@@ -22,8 +22,7 @@ const TUPAC_SHOW = 19;
 
 class Example extends Phaser.Scene {
     preload() {
-        this.load.image('tiles', 'assets/img/64x64/map_tileset_64.png');
-        this.load.image('machango', 'assets/img/64x64/mach_center.png');
+        this.load.image('tiles', 'assets/img/64x64/map_tileset_64.png');        
         this.load.tilemapCSV('level1', 'assets/level_1.csv');
         this.load.tilemapCSV('level2', 'assets/level_2.csv');
         this.load.tilemapCSV('level3', 'assets/level_3.csv');
@@ -76,8 +75,7 @@ class Example extends Phaser.Scene {
         const tags = this.anims.createFromAseprite('paladin');
         const player = this.add.sprite(starting_pointX, starting_pointY).play({ key: 'Idle fight', repeat: -1 }).setScale(1);
 
-        const machango = this.add.image(starting_level2X, starting_level2Y, 'machango');
-        
+                
 
         this.anims.create({ 
             key: 'keyTile', 
