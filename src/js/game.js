@@ -27,17 +27,19 @@ const TUPAC_SHOW = 19;
 
 class Example extends Phaser.Scene {
     preload() {
-        this.load.image('tiles', 'assets/img/64x64/map_tileset_64.png');        
-        this.load.tilemapCSV('level1', 'assets/level_1.csv');
-        this.load.tilemapCSV('level2', 'assets/level_2.csv');
-        this.load.tilemapCSV('level3', 'assets/level_3.csv');
+        this.load.image('tiles', 'assets/img/world_1/world_1_tileset_64.png');
+
+        this.load.tilemapCSV('level1', 'assets/world_maps/world_1_map/level_1.csv');
+        this.load.tilemapCSV('level2', 'assets/world_maps/world_1_map/level_2.csv');
+        this.load.tilemapCSV('level3', 'assets/world_maps/world_1_map/level_3.csv');
+
         this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
-        this.load.atlas('keyTile', 'assets/img/animation/key_tile.png', 'assets/img/animation/key_tile.json');        
-        this.load.atlas('door', 'assets/img/animation/door.png', 'assets/img/animation/door.json');
-        this.load.atlas('doorUp', 'assets/img/animation/door_top.png', 'assets/img/animation/door_top.json');
-        this.load.atlas('tupac_caged', 'assets/img/animation/tupac_caged.png', 'assets/img/animation/tupac_caged.json');
-        this.load.atlas('tupac_reveal', 'assets/img/animation/tupac_reveal.png', 'assets/img/animation/tupac_reveal.json');
-        this.load.atlas('wall_animation', 'assets/img/animation/wall_animation.png', 'assets/img/animation/wall_animation.json');
+        this.load.atlas('keyTile', 'assets/img/world_1/key_tile_world_1.png', 'assets/img/world_1/key_tile_world_1.json');        
+        this.load.atlas('door', 'assets/img/world_1/door.png', 'assets/img/world_1/door.json');
+        this.load.atlas('doorUp', 'assets/img/world_1/door_top.png', 'assets/img/world_1/door_top.json');
+        this.load.atlas('tupac_caged', 'assets/img/world_1/tupac_caged.png', 'assets/img/world_1/tupac_caged.json');
+        this.load.atlas('tupac_reveal', 'assets/img/world_1/tupac_reveal.png', 'assets/img/world_1/tupac_reveal.json');
+        this.load.atlas('wall_animation', 'assets/img/world_1/wall_animation.png', 'assets/img/world_1/wall_animation.json');
     }
 
     create() {
