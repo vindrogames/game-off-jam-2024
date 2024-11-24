@@ -33,6 +33,8 @@ export default class Screen_start extends Phaser.Scene {
 
     this.load.image('world_1_button', 'assets/img/screen_start/world_1_button.png');
     this.load.image('world_2_button', 'assets/img/screen_start/world_2_button.png');
+
+    this.load.audio('main_screen_audio', 'assets/audio/space-266642.mp3')
   }
 
   create() {
@@ -44,6 +46,13 @@ export default class Screen_start extends Phaser.Scene {
       repeat: -1,
       frameRate: 8,
     });
+
+    this.main_screen_music = this.sound.add('main_screen_audio', {
+      loop: true,
+      volume: 0.5
+    });
+
+    this.main_screen_music.play();
 
     var worlds = this.add.sprite(576/2, 576/2, 'worlds_animation');
     var worldsAnim = worlds.play('worlds_animation');

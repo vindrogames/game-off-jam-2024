@@ -62,6 +62,8 @@ export default class World_1 extends Phaser.Scene {
     this.load.atlas('tupac_caged', 'assets/img/world_1/tupac_caged.png', 'assets/img/world_1/tupac_caged.json');
     this.load.atlas('tupac_reveal', 'assets/img/world_1/tupac_reveal.png', 'assets/img/world_1/tupac_reveal.json');
     this.load.atlas('wall_animation', 'assets/img/world_1/wall_animation.png', 'assets/img/world_1/wall_animation.json');
+
+    this.load.audio('death_fx', 'assets/audio/phaser_death_world_1.mp3');
   }
 
   create() {
@@ -177,7 +179,10 @@ export default class World_1 extends Phaser.Scene {
     const tags = this.anims.createFromAseprite('paladin');
     const player = this.add.sprite(starting_pointX, starting_pointY).play({ key: 'Idle fight', repeat: -1 }).setScale(1);
 
-            
+    this.death_fx = this.sound.add('death_fx', {
+        loop: false,
+        volume: 0.5
+    })
 
     this.anims.create({ 
         key: 'keyTile', 
@@ -312,7 +317,9 @@ export default class World_1 extends Phaser.Scene {
         isDying = true;
         muerte(newX, newY);
         update_labels(numDeaths, current_level);
-        this.showChatBubble('Oh no, I died!', player.x, player.y);
+        //this.showChatBubble('Oh no, I died!', player.x, player.y);
+
+        this.death_fx.play();
     
         // Find the actual death tile
         let deathTile = layer.getTileAtWorldXY(newX, newY);
