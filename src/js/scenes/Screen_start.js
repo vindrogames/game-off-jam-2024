@@ -1,19 +1,29 @@
 //import { SPECS } from '../config.js'
 
-const BACKGROUND_X = 0 + 576 / 2;
-const BACKGORUND_Y = 0 + 576 / 2;
+/* const TILE_SIZE = 64;
+const NUM_TILES = 9;
+const GAME_WIDTH = TILE_SIZE * NUM_TILES;
+const GAME_HEIGHT = TILE_SIZE * NUM_TILES;
+const TILEDIMENSION = 64; */
 
-const WORLD_1_BTN_X = 64 * 2 + 576 / 2;
-const WORLD_1_BTN_Y = 64 * 7.5 + 576 / 2;
+const BACKGROUND_X = 576 / 2;
+const BACKGORUND_Y = 576 / 2;
 
-const WORLD_2_BTN_X = 64 * 2 + 576 / 2;
-const WORLD_2_BTN_Y = 64 * 7.5 + 576 / 2;
+const WORLD_1_BTN_X = 64 * 2 + 32;
+const WORLD_1_BTN_Y = 64 * 6 + 32;
+
+const WORLD_2_BTN_X = 64 * 6 + 32;
+const WORLD_2_BTN_Y = 64 * 6 + 32;
 
 
 export default class Screen_start extends Phaser.Scene {
 
   constructor() {
     super('Screen_start');
+  }
+
+  init() {
+
   }
 
   preload() {
@@ -35,17 +45,34 @@ export default class Screen_start extends Phaser.Scene {
       frameRate: 8,
     });
 
-    var worlds = this.add.sprite(290, 300, 'worlds_animation');
+    var worlds = this.add.sprite(576/2, 576/2, 'worlds_animation');
     var worldsAnim = worlds.play('worlds_animation');
     
-    const BTN_WORLD_1 = this.add.image(WORLD_1_BTN_X, WORLD_1_BTN_Y, 'world_1_button').setInteractive().setDepth(1);
+    const BTN_WORLD_1 = this.add.image(WORLD_1_BTN_X, WORLD_1_BTN_Y, 'world_1_button').setInteractive({ useHandCursor: true });
 
 
-    const BTN_WORLD_2 = this.add.image(WORLD_2_BTN_X, WORLD_2_BTN_Y, 'world_2_button').setInteractive();
+    const BTN_WORLD_2 = this.add.image(WORLD_2_BTN_X, WORLD_2_BTN_Y, 'world_2_button').setInteractive({ useHandCursor: true });
 
     BTN_WORLD_1.on('pointerdown', () => {
 
+      console.log('Starting World 1');
       this.scene.start('World_1');
+      this.scene.stop('Screen_start');
+    })
+
+    BTN_WORLD_2.on('pointerdown', () => {
+
+      console.log('Starting World 2');
+      this.scene.start('World_2');
+      this.scene.stop('Screen_start');
+    })
+
+    this.events.on('shutdown', () => {
+
+      console.log("cleaning up buttons");
+      this.anims.remove('worlds_animation');
+      BTN_WORLD_1.off('pointerdown');
+      BTN_WORLD_2.off('pointerdown');
     })
   }
 }

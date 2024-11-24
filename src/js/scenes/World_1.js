@@ -8,6 +8,10 @@ const TILEDIMENSION = 64;
 
 var cheatmode = false;
 
+// bottom nav menu for each world
+var hard_mode = true;
+var easy_mode = false;
+
 // map reference constants
 const TILE_HIDDEN_DOOR = 16;
 const TILE_OPEN_DOOR_LEFT = 0;
@@ -31,6 +35,10 @@ export default class World_1 extends Phaser.Scene {
     super('World_1');
   }
 
+  init() {
+
+  }
+
   preload() {
 
     this.load.image('tiles', 'assets/img/world_1/world_1_tileset_64.png');
@@ -38,6 +46,14 @@ export default class World_1 extends Phaser.Scene {
     this.load.tilemapCSV('level1', 'assets/world_maps/world_1_map/level_1.csv');
     this.load.tilemapCSV('level2', 'assets/world_maps/world_1_map/level_2.csv');
     this.load.tilemapCSV('level3', 'assets/world_maps/world_1_map/level_3.csv');
+
+    // Loads nave menu button images (easy mode, hard mode, return to home)
+    this.load.image('easy_on', 'assets/img/world_1/easy_on.png');
+    this.load.image('easy_off', 'assets/img/world_1/easy_off.png');
+    this.load.image('hard_on', 'assets/img/world_1/hard_on.png');
+    this.load.image('hard_off', 'assets/img/world_1/hard_off.png');
+    this.load.image('nav_home', 'assets/img/nav_home.png');
+    this.load.image('nav_home_hover', 'assets/img/nav_home_hover.png');
 
     this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
     this.load.atlas('keyTile', 'assets/img/world_1/key_tile_world_1.png', 'assets/img/world_1/key_tile_world_1.json');        
@@ -54,6 +70,79 @@ export default class World_1 extends Phaser.Scene {
     var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);       
     var layer = map.createLayer('layer', tileset, 0, 0);
 
+    const HARD_MODE_BTN = this.add.image(64 * 1.5 + 32, 576 - 28, 'hard_on').setInteractive({ useHandCursor: true });
+    const EASY_MODE_BTN = this.add.image(64 * 2.5 + 32, 576 - 28, 'easy_off').setInteractive({ useHandCursor: true });
+    const HOME_BTN = this.add.image(64 * 4.5 + 32, 576 - 28, 'nav_home').setInteractive({ useHandCursor: true });
+
+    HOME_BTN.on('pointerover', () => {
+
+      HOME_BTN.setTexture('nav_home_hover');
+    });
+
+    HOME_BTN.on('pointerout', () => {
+
+      HOME_BTN.setTexture('nav_home');
+    });
+
+    HOME_BTN.on('pointerdown', () => {
+
+      this.scene.start('Screen_start');
+      this.scene.stop('World_1');
+    });
+
+    if (hard_mode === true && easy_mode === false) {
+
+      EASY_MODE_BTN.on('pointerover', () => {
+
+        EASY_MODE_BTN.setTexture('easy_on');
+
+      });
+
+      EASY_MODE_BTN.on('pointerout', () => {
+
+        EASY_MODE_BTN.setTexture('easy_off');
+      })
+
+      EASY_MODE_BTN.on('pointerdown', () => {
+
+        
+        EASY_MODE_BTN.setTexture('easy_on');
+        HARD_MODE_BTN.setTexture('hard_off');
+        easy_mode = true;
+        hard_mode = false;
+
+        console.log("easy mode " + easy_mode);
+        console.log("hard mode " + hard_mode);
+      })
+    }
+    
+    if (easy_mode === true && hard_mode === false) {
+
+      EASY_MODE_BTN.setTexture('easy_on');
+      EASY_MODE_BTN.on('pointerover', () => {
+
+        EASY_MODE_BTN.setTexture('easy_on');
+      });
+      HARD_MODE_BTN.on('pointerover', () => {
+
+        HARD_MODE_BTN.setTexture('hard_on');
+
+      });
+
+      HARD_MODE_BTN.on('pointerout', () => {
+
+        HARD_MODE_BTN.setTexture('hard_off');
+      })
+
+      HARD_MODE_BTN.on('pointerdown', () => {
+
+        HARD_MODE_BTN.setTexture('hard_on');
+        easy_mode = false;
+        hard_mode = true;
+      })
+    }
+
+
     var numDeaths = 0;
     var isMoving = false;
     var lastDirection = 'right';
@@ -62,7 +151,7 @@ export default class World_1 extends Phaser.Scene {
     var doorSprite = null;
     var doorSpriteUp = null;
 
-    const starting_pointX = TILEDIMENSION + TILEDIMENSION/2;
+    const starting_pointX = TILEDIMENSION*7 + TILEDIMENSION/2;
     const starting_pointY = TILEDIMENSION + TILEDIMENSION/2;
 
     const key_level1X = TILEDIMENSION*5 + TILEDIMENSION/2;
@@ -454,6 +543,12 @@ export default class World_1 extends Phaser.Scene {
         bubbleText.destroy();
     });
   }
+}
 
-  
+function update_labels(num_deaths, num_level) {
+    var temp_level = num_level + 1;    
+    const level_label = document.getElementById('level_label');
+    level_label.textContent = 'Level ' + temp_level;
+    const deaths_label = document.getElementById('deaths_label');
+    deaths_label.textContent = 'Deaths: ' + num_deaths;
 }
