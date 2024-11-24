@@ -30,6 +30,7 @@ export default class Screen_start extends Phaser.Scene {
     this.load.image('main_screen_start', 'assets/img/screen_start/main_screen_start.png');
 
     this.load.atlas('worlds_animation', 'assets/img/screen_start/world_animations.png', 'assets/img/screen_start/world_animations.json');
+    this.load.image('tupac_complete', 'assets/img/screen_start/tupac_complete.png');
 
     this.load.image('world_1_button', 'assets/img/screen_start/world_1_button.png');
     this.load.image('world_2_button', 'assets/img/screen_start/world_2_button.png');
@@ -39,6 +40,7 @@ export default class Screen_start extends Phaser.Scene {
 
   create() {
 
+    var tupac = true;
     this.add.image(BACKGROUND_X, BACKGORUND_Y, 'main_screen_start');
     this.anims.create({
       key: 'worlds_animation',
@@ -56,6 +58,11 @@ export default class Screen_start extends Phaser.Scene {
 
     var worlds = this.add.sprite(576/2, 576/2, 'worlds_animation');
     var worldsAnim = worlds.play('worlds_animation');
+
+    if (tupac === true) {
+
+      this.add.image(576/2 - 126, 576/2, 'tupac_complete');
+    }
     
     const BTN_WORLD_1 = this.add.image(WORLD_1_BTN_X, WORLD_1_BTN_Y, 'world_1_button').setInteractive({ useHandCursor: true });
 
