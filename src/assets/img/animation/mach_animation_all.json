@@ -332,8 +332,10 @@
       { "name": "walk_right", "from": 12, "to": 15, "direction": "right" },
       { "name": "die_right", "from": 16, "to": 21, "direction": "down" },
       { "name": "die_left", "from": 22, "to": 27, "direction": "down" },
-      { "name": "die_left", "from": 28, "to": 33, "direction": "down" },
-      { "name": "die_right", "from": 0, "to": 9, "direction": "down" }
+      { "name": "die_up", "from": 28, "to": 33, "direction": "down" },
+      { "name": "die_down", "from": 0, "to": 9, "direction": "down" }
+      ,
+      { "name": "idle_front", "from": 0, "to": 0, "direction": "down" }
     ]
   }
 }

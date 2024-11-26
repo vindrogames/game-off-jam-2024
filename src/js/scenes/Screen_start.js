@@ -1,5 +1,8 @@
 //import { SPECS } from '../config.js'
 
+const MULTI_WORLDS = false
+
+
 /* const TILE_SIZE = 64;
 const NUM_TILES = 9;
 const GAME_WIDTH = TILE_SIZE * NUM_TILES;
