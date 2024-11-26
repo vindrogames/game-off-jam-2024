@@ -1,5 +1,7 @@
 //import { SPECS } from '../config.js'
 
+const MULTI_WORLD = false;
+
 /* const TILE_SIZE = 64;
 const NUM_TILES = 9;
 const GAME_WIDTH = TILE_SIZE * NUM_TILES;
@@ -81,7 +83,7 @@ export default class Screen_start extends Phaser.Scene {
       console.log('Starting World 2');
       this.scene.start('World_2');
       this.scene.stop('Screen_start');
-    })
+    });
 
     this.events.on('shutdown', () => {
 
@@ -89,6 +91,6 @@ export default class Screen_start extends Phaser.Scene {
       this.anims.remove('worlds_animation');
       BTN_WORLD_1.off('pointerdown');
       BTN_WORLD_2.off('pointerdown');
-    })
+    });
   }
 }

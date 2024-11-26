@@ -90,59 +90,63 @@ export default class World_1 extends Phaser.Scene {
 
       this.scene.start('Screen_start');
       this.scene.stop('World_1');
+      // map.destroy();
     });
 
-    if (hard_mode === true && easy_mode === false) {
+    EASY_MODE_BTN.on('pointerover', () => {
 
-      EASY_MODE_BTN.on('pointerover', () => {
+        if (easy_mode === false && hard_mode === true) {
 
-        EASY_MODE_BTN.setTexture('easy_on');
+            EASY_MODE_BTN.setTexture('easy_on');
+        }
+    });
 
-      });
+    EASY_MODE_BTN.on('pointerout', () => {
 
-      EASY_MODE_BTN.on('pointerout', () => {
+        if (easy_mode === false && hard_mode === true) {
 
-        EASY_MODE_BTN.setTexture('easy_off');
-      })
+            EASY_MODE_BTN.setTexture('easy_off');
+        }
+    });
 
-      EASY_MODE_BTN.on('pointerdown', () => {
+    EASY_MODE_BTN.on('pointerdown', () => {
 
-        
-        EASY_MODE_BTN.setTexture('easy_on');
-        HARD_MODE_BTN.setTexture('hard_off');
-        easy_mode = true;
-        hard_mode = false;
+        if (easy_mode === false && hard_mode === true) {
 
-        console.log("easy mode " + easy_mode);
-        console.log("hard mode " + hard_mode);
-      })
-    }
+            EASY_MODE_BTN.setTexture('easy_on');
+            HARD_MODE_BTN.setTexture('hard_off');
+            easy_mode = true;
+            hard_mode = false;
+        }
+    });
+
+    HARD_MODE_BTN.on('pointerover', () => {
+
+        if (easy_mode === true && hard_mode === false) {
+
+            HARD_MODE_BTN.setTexture('hard_on');
+        }
+    });
+
+    HARD_MODE_BTN.on('pointerout', () => {
+
+        if (easy_mode === true && hard_mode === false) {
+
+            HARD_MODE_BTN.setTexture('hard_off');
+        }
+    });
+
+    HARD_MODE_BTN.on('pointerdown', () => {
+
+        if (easy_mode === true && hard_mode === false) {
+
+            HARD_MODE_BTN.setTexture('hard_on');
+            EASY_MODE_BTN.setTexture('easy_off');
+            easy_mode = false;
+            hard_mode = true;
+        }
+    });
     
-    if (easy_mode === true && hard_mode === false) {
-
-      EASY_MODE_BTN.setTexture('easy_on');
-      EASY_MODE_BTN.on('pointerover', () => {
-
-        EASY_MODE_BTN.setTexture('easy_on');
-      });
-      HARD_MODE_BTN.on('pointerover', () => {
-
-        HARD_MODE_BTN.setTexture('hard_on');
-
-      });
-
-      HARD_MODE_BTN.on('pointerout', () => {
-
-        HARD_MODE_BTN.setTexture('hard_off');
-      })
-
-      HARD_MODE_BTN.on('pointerdown', () => {
-
-        HARD_MODE_BTN.setTexture('hard_on');
-        easy_mode = false;
-        hard_mode = true;
-      })
-    }
 
 
     var numDeaths = 0;
