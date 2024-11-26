@@ -56,6 +56,8 @@ export default class World_1 extends Phaser.Scene {
     this.load.image('nav_home_hover', 'assets/img/nav_home_hover.png');
 
     this.load.aseprite('paladin', 'assets/img/aseprite/paladin.png', 'assets/img/aseprite/paladin.json');
+    this.load.aseprite('machango', 'assets/img/animation/mach_animation_all.png', 'assets/img/animation/mach_animation_all.json');
+    
     this.load.atlas('keyTile', 'assets/img/world_1/key_tile_world_1.png', 'assets/img/world_1/key_tile_world_1.json');        
     this.load.atlas('door', 'assets/img/world_1/door.png', 'assets/img/world_1/door.json');
     this.load.atlas('doorUp', 'assets/img/world_1/door_top.png', 'assets/img/world_1/door_top.json');
@@ -180,8 +182,8 @@ export default class World_1 extends Phaser.Scene {
 
     var current_level = 0;
 
-    const tags = this.anims.createFromAseprite('paladin');
-    const player = this.add.sprite(starting_pointX, starting_pointY).play({ key: 'Idle fight', repeat: -1 }).setScale(1);
+    const tags = this.anims.createFromAseprite('machango');
+    const player = this.add.sprite(starting_pointX, starting_pointY).play({ key: 'idle_front', repeat: -1 }).setScale(1);
 
     this.death_fx = this.sound.add('death_fx', {
         loop: false,
@@ -311,7 +313,7 @@ export default class World_1 extends Phaser.Scene {
         player.flipX = false;
         lastDirection = 'right';
         isDying = false;
-        player.play({ key: 'Idle fight', repeat: -1 });
+        player.play({ key: 'idle_front', repeat: -1 });
     }
     
 
@@ -345,7 +347,7 @@ export default class World_1 extends Phaser.Scene {
         }
     
         player.play({
-            key: 'morte',
+            key: 'die_right',
             repeat: 0,
             frameRate: 10,
             onComplete: () => {
@@ -469,7 +471,7 @@ export default class World_1 extends Phaser.Scene {
             player.y = targetY;
             player.flipX = false;
             lastDirection = 'right';
-            player.play({ key: 'Idle fight', repeat: -1 });
+            player.play({ key: 'idle_front', repeat: -1 });
     
             tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);
             layer = map.createLayer(0, tileset, 0, 0);
@@ -483,7 +485,7 @@ export default class World_1 extends Phaser.Scene {
             return;
         } else {
             isMoving = true;
-            player.play({ key: 'run front', repeat: -1 });
+            player.play({ key: 'walk_down', repeat: -1 });
 
             this.tweens.add({
                 targets: player,
@@ -493,7 +495,7 @@ export default class World_1 extends Phaser.Scene {
                 ease: 'Power2',
                 onComplete: () => {
                     isMoving = false;
-                    player.play({ key: 'Idle fight', repeat: -1 });
+                    player.play({ key: 'idle_front', repeat: -1 });
                 }
             });
         }
