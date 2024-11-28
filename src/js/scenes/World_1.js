@@ -66,10 +66,10 @@ export default class World_1 extends Phaser.Scene {
 
     // Assets for End Game
     this.load.atlas('tupac_caged', 'assets/img/world_1/tupac_caged.png', 'assets/img/world_1/tupac_caged.json');
-    this.load.atlas('tupac_reveal', 'assets/img/world_1/end_dialogue/tupac_reveal.png', 'assets/img/world_1/end/dialogue/tupac_reveal.json');
+    this.load.atlas('tupac_reveal', 'assets/img/world_1/end_dialogue/tupac_reveal.png', 'assets/img/world_1/end_dialogue/tupac_reveal.json');
 
     // Sprite with one frame per second for final dialogue. ¿SE PUEDE MAS DESPACIO TODAVÍA?
-    this.load.atlas('end_game', 'assets/img/world_1/end_dialogue/final_dialogue_animation.png', 'assets/img/world_1/end_dialogue/final_dialogue/animatiob.json');
+    this.load.atlas('end_game', 'assets/img/world_1/end_dialogue/final_dialogue_animation.png', 'assets/img/world_1/end_dialogue/final_dialogue_animation.json');
 
     // SI NO SE PUEDE USAMOS LAS IMÁGENES SUELTAS CON setTimeout();
     this.load.image('end_dialogue_1', 'assets/img/world_1/end_dialogue/end_dialogue_1.png');
