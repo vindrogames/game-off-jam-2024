@@ -323,14 +323,11 @@ export default class World_1 extends Phaser.Scene {
         isDying = true;
         muerte(newX, newY);
         update_labels(numDeaths, current_level);
-        //this.showChatBubble('Oh no, I died!', player.x, player.y);
-
+    
         this.death_fx.play();
     
-        // Find the actual death tile
         let deathTile = layer.getTileAtWorldXY(newX, newY);
         
-        // Play the wall animation at the death tile
         let wallAnimation = this.add.sprite(deathTile.pixelX + TILEDIMENSION/2, deathTile.pixelY + TILEDIMENSION/2, 'wall_animation');
         wallAnimation.play('wall_animation');
         
@@ -346,8 +343,20 @@ export default class World_1 extends Phaser.Scene {
             targetY = starting_level3Y;
         }
     
+        // Choose death animation based on last direction
+        let deathAnimation;
+        if (lastDirection === 'left') {
+            deathAnimation = 'die_left';
+        } else if (lastDirection === 'right') {
+            deathAnimation = 'die_right';
+        } else if (lastDirection === 'up') {
+            deathAnimation = 'die_up';
+        } else {
+            deathAnimation = 'die_down';
+        }
+    
         player.play({
-            key: 'die_right',
+            key: deathAnimation,
             repeat: 0,
             frameRate: 10,
             onComplete: () => {
@@ -363,7 +372,6 @@ export default class World_1 extends Phaser.Scene {
             }
         });
     
-        // Change the specific TILE_DEATH to TILE_WALL_FIXED
         if (deathTile && deathTile.index === TILE_DEATH) {
             layer.putTileAt(TILE_WALL_FIXED, deathTile.x, deathTile.y);
         }
@@ -378,11 +386,11 @@ export default class World_1 extends Phaser.Scene {
     });
 
     this.input.keyboard.on('keydown-W', event => {
-        if (!isMoving && !isDying) movePlayer(0, -TILEDIMENSION, lastDirection);
+        if (!isMoving && !isDying) movePlayer(0, -TILEDIMENSION, 'up');
     });
 
     this.input.keyboard.on('keydown-S', event => {
-        if (!isMoving && !isDying) movePlayer(0, TILEDIMENSION, lastDirection);
+        if (!isMoving && !isDying) movePlayer(0, TILEDIMENSION, 'down');
     });
 
     this.input.keyboard.on('keydown-O', event => {
@@ -403,9 +411,9 @@ export default class World_1 extends Phaser.Scene {
             }
         } else {
             if (deltaY > 0) {
-                movePlayer(0, TILEDIMENSION, lastDirection);
+                movePlayer(0, TILEDIMENSION, 'down');
             } else {
-                movePlayer(0, -TILEDIMENSION, lastDirection);
+                movePlayer(0, -TILEDIMENSION, 'up');
             }
         }
     });
@@ -415,12 +423,18 @@ export default class World_1 extends Phaser.Scene {
         const newY = player.y + deltaY;
         const tile = layer.getTileAtWorldXY(newX, newY, true);
     
-        if (direction === 'left') {
-            player.flipX = true;
+        if (direction === 'left') {            
             lastDirection = 'left';
-        } else if (direction === 'right') {
-            player.flipX = false;
+            player.play({ key: 'walk_left', repeat: 0 });
+        } else if (direction === 'right') {            
             lastDirection = 'right';
+            player.play({ key: 'walk_right', repeat: 0 });
+        } else if (direction === 'up') {
+            lastDirection = 'up';
+            player.play({ key: 'walk_up', repeat: 0 });
+        } else if (direction === 'down') {
+            lastDirection = 'down';
+            player.play({ key: 'walk_down', repeat: 0 });
         }
     
         if (!hasKey && newX === keyTile.x && newY === keyTile.y) {
@@ -485,7 +499,7 @@ export default class World_1 extends Phaser.Scene {
             return;
         } else {
             isMoving = true;
-            player.play({ key: 'walk_down', repeat: -1 });
+            //player.play({ key: 'walk_down', repeat: -1 });
 
             this.tweens.add({
                 targets: player,
@@ -495,7 +509,7 @@ export default class World_1 extends Phaser.Scene {
                 ease: 'Power2',
                 onComplete: () => {
                     isMoving = false;
-                    player.play({ key: 'idle_front', repeat: -1 });
+                    //player.play({ key: 'idle_front', repeat: -1 });
                 }
             });
         }
