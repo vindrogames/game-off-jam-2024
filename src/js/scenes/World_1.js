@@ -61,11 +61,24 @@ export default class World_1 extends Phaser.Scene {
     this.load.atlas('keyTile', 'assets/img/world_1/key_tile_world_1.png', 'assets/img/world_1/key_tile_world_1.json');        
     this.load.atlas('door', 'assets/img/world_1/door.png', 'assets/img/world_1/door.json');
     this.load.atlas('doorUp', 'assets/img/world_1/door_top.png', 'assets/img/world_1/door_top.json');
-    this.load.atlas('tupac_caged', 'assets/img/world_1/tupac_caged.png', 'assets/img/world_1/tupac_caged.json');
-    this.load.atlas('tupac_reveal', 'assets/img/world_1/tupac_reveal.png', 'assets/img/world_1/tupac_reveal.json');
     this.load.atlas('wall_animation', 'assets/img/world_1/wall_animation.png', 'assets/img/world_1/wall_animation.json');
-
     this.load.audio('death_fx', 'assets/audio/phaser_death_world_1.mp3');
+
+    // Assets for End Game
+    this.load.atlas('tupac_caged', 'assets/img/world_1/tupac_caged.png', 'assets/img/world_1/tupac_caged.json');
+    this.load.atlas('tupac_reveal', 'assets/img/world_1/end_dialogue/tupac_reveal.png', 'assets/img/world_1/end/dialogue/tupac_reveal.json');
+
+    // Sprite with one frame per second for final dialogue. ¿SE PUEDE MAS DESPACIO TODAVÍA?
+    this.load.atlas('end_game', 'assets/img/world_1/end_dialogue/final_dialogue_animation.png', 'assets/img/world_1/end_dialogue/final_dialogue/animatiob.json');
+
+    // SI NO SE PUEDE USAMOS LAS IMÁGENES SUELTAS CON setTimeout();
+    this.load.image('end_dialogue_1', 'assets/img/world_1/end_dialogue/end_dialogue_1.png');
+    this.load.image('end_dialogue_1', 'assets/img/world_1/end_dialogue/end_dialogue_2.png');
+    this.load.image('end_dialogue_1', 'assets/img/world_1/end_dialogue/end_dialogue_3.png');
+    this.load.image('end_dialogue_1', 'assets/img/world_1/end_dialogue/end_dialogue_4.png');
+    this.load.image('end_dialogue_1', 'assets/img/world_1/end_dialogue/end_dialogue_5.png');
+    this.load.image('end_dialogue_1', 'assets/img/world_1/end_dialogue/end_dialogue_6.png');
+    this.load.image('end_dialogue_1', 'assets/img/world_1/end_dialogue/end_dialogue_7.png');
   }
 
   create() {
@@ -148,8 +161,6 @@ export default class World_1 extends Phaser.Scene {
             hard_mode = true;
         }
     });
-    
-
 
     var numDeaths = 0;
     var isMoving = false;
@@ -260,9 +271,21 @@ export default class World_1 extends Phaser.Scene {
             var tupac_reveal = this.add.sprite(tupac_3x, tupac_3y, 'tupac_reveal');
             var tupac_revealAnim = tupac_reveal.play('tupac_reveal');
 
-            tupac_cagedAnim.destroy();
+            //tupac_cagedAnim.destroy();
         }
     }
+
+    const endWorld = () => {
+
+        this.anims.create({
+            key: 'end_game',
+            frames: this.anims.generateFrameNames('end_game', {prefix: 'final_', end: 6, zeroPad: 2}),
+            repeat: 0,
+            frameRate: 1
+        });
+
+        this.add.sprite(300, 300, 'end_game').play('end_game');
+    };
 
     const resetLevel = () => {
         hasKey = false;
@@ -437,6 +460,7 @@ export default class World_1 extends Phaser.Scene {
                 }
                 if (current_level === 2) {
                     revealAstro("tupac");
+                    endWorld();
                 }
             });
         }
