@@ -1,6 +1,6 @@
 //import { SPECS } from '../config.js'
 
-const NUM_WORLDS = 2;
+const NUM_WORLDS = 1;
 
 /* const TILE_SIZE = 64;
 const NUM_TILES = 9;

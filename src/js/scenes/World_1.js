@@ -281,10 +281,14 @@ export default class World_1 extends Phaser.Scene {
             key: 'end_game',
             frames: this.anims.generateFrameNames('end_game', {prefix: 'final_', end: 6, zeroPad: 2}),
             repeat: 0,
-            frameRate: 1
+            frameRate: 0.4
         });
 
-        this.add.sprite(300, 300, 'end_game').play('end_game');
+        var endDialogueAnim = this.add.sprite(300, 240, 'end_game').play('end_game');
+        this.time.delayedCall(18000, () => {
+
+            endDialogueAnim.destroy();
+        });
     };
 
     const resetLevel = () => {
@@ -474,7 +478,9 @@ export default class World_1 extends Phaser.Scene {
                 }
                 if (current_level === 2) {
                     revealAstro("tupac");
-                    endWorld();
+                    this.time.delayedCall(1600, () => {
+                        endWorld();
+                    });
                 }
             });
         }
