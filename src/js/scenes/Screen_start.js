@@ -47,12 +47,14 @@ export default class Screen_start extends Phaser.Scene {
 
     this.add.image(BACKGROUND_X, BACKGORUND_Y, 'main_screen_start');
 
+    /*
     this.main_screen_music = this.sound.add('main_screen_audio', {
       loop: true,
       volume: 0.5
     });
 
     this.main_screen_music.play();
+    */
 
     if (NUM_WORLDS === 1) {
       
