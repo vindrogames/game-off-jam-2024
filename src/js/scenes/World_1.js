@@ -352,6 +352,7 @@ export default class World_1 extends Phaser.Scene {
         update_labels(numDeaths, current_level);
     
         this.death_fx.play();
+        console.log(this.death_fx.play());
     
         let deathTile = layer.getTileAtWorldXY(newX, newY);
         
@@ -425,6 +426,7 @@ export default class World_1 extends Phaser.Scene {
     });
 
     this.input.on('pointerdown', pointer => {
+
         if (isMoving || isDying) return;
         
         const deltaX = pointer.worldX - player.x;
