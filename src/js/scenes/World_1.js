@@ -87,8 +87,8 @@ export default class World_1 extends Phaser.Scene {
     var tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);       
     var layer = map.createLayer('layer', tileset, 0, 0);
 
-    const HARD_MODE_BTN = this.add.image(64 * 1.5 + 32, 576 - 28, 'hard_on').setInteractive({ useHandCursor: true });
-    const EASY_MODE_BTN = this.add.image(64 * 2.5 + 32, 576 - 28, 'easy_off').setInteractive({ useHandCursor: true });
+    //const HARD_MODE_BTN = this.add.image(64 * 1.5 + 32, 576 - 28, 'hard_on').setInteractive({ useHandCursor: false });
+    //const EASY_MODE_BTN = this.add.image(64 * 2.5 + 32, 576 - 28, 'easy_off').setInteractive({ useHandCursor: false });
     const HOME_BTN = this.add.image(64 * 4.5 + 32, 576 - 28, 'nav_home').setInteractive({ useHandCursor: true });
 
     HOME_BTN.on('pointerover', () => {
@@ -107,7 +107,7 @@ export default class World_1 extends Phaser.Scene {
       this.scene.stop('World_1');
       // map.destroy();
     });
-
+/*
     EASY_MODE_BTN.on('pointerover', () => {
 
         if (easy_mode === false && hard_mode === true) {
@@ -161,7 +161,7 @@ export default class World_1 extends Phaser.Scene {
             hard_mode = true;
         }
     });
-
+*/
     var numDeaths = 0;
     var isMoving = false;
     var lastDirection = 'right';
@@ -349,7 +349,7 @@ export default class World_1 extends Phaser.Scene {
         
         isDying = true;
         muerte(newX, newY);
-        update_labels(numDeaths, current_level);
+        
     
         this.death_fx.play();
         console.log(this.death_fx.play());
@@ -521,7 +521,7 @@ export default class World_1 extends Phaser.Scene {
     
             tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);
             layer = map.createLayer(0, tileset, 0, 0);
-            update_labels(numDeaths, current_level);
+            
             resetLevel();
 
 
@@ -602,12 +602,4 @@ export default class World_1 extends Phaser.Scene {
         bubbleText.destroy();
     });
   }
-}
-
-function update_labels(num_deaths, num_level) {
-    var temp_level = num_level + 1;    
-    const level_label = document.getElementById('level_label');
-    level_label.textContent = 'Level ' + temp_level;
-    const deaths_label = document.getElementById('deaths_label');
-    deaths_label.textContent = 'Deaths: ' + num_deaths;
 }
