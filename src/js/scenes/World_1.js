@@ -349,7 +349,7 @@ export default class World_1 extends Phaser.Scene {
         
         isDying = true;
         muerte(newX, newY);
-        update_labels(numDeaths, current_level);
+        
     
         this.death_fx.play();
         console.log(this.death_fx.play());
@@ -521,7 +521,7 @@ export default class World_1 extends Phaser.Scene {
     
             tileset = map.addTilesetImage('tiles', null, TILEDIMENSION, TILEDIMENSION, 0, 0);
             layer = map.createLayer(0, tileset, 0, 0);
-            update_labels(numDeaths, current_level);
+            
             resetLevel();
 
 
@@ -602,12 +602,4 @@ export default class World_1 extends Phaser.Scene {
         bubbleText.destroy();
     });
   }
-}
-
-function update_labels(num_deaths, num_level) {
-    var temp_level = num_level + 1;    
-    const level_label = document.getElementById('level_label');
-    level_label.textContent = 'Level ' + temp_level;
-    const deaths_label = document.getElementById('deaths_label');
-    deaths_label.textContent = 'Deaths: ' + num_deaths;
 }
